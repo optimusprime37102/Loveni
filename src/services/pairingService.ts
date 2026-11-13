@@ -1,7 +1,13 @@
 import {
+  collection,
   doc,
+  getDocs,
+  limit,
+  query,
   runTransaction,
   serverTimestamp,
+  where,
+  type DocumentReference,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { getDb, getFirebaseFunctions } from '@/src/lib/firebase';
@@ -12,6 +18,32 @@ const INVITE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 function pairingMode(): 'functions' | 'client' {
   const mode = process.env.EXPO_PUBLIC_PAIRING_MODE;
   return mode === 'functions' ? 'functions' : 'client';
+}
+
+async function findInviteRefByCode(code: string): Promise<DocumentReference> {
+  const db = getDb();
+  const snap = await getDocs(
+    query(collection(db, 'invites'), where('code', '==', code), limit(1))
+  );
+  if (!snap.empty) return snap.docs[0].ref;
+
+  // Legacy invites used the code as the document id.
+  return doc(db, 'invites', code);
+}
+
+async function revokeLegacyOpenInvites(uid: string): Promise<DocumentReference[]> {
+  const db = getDb();
+  const snap = await getDocs(
+    query(
+      collection(db, 'invites'),
+      where('createdBy', '==', uid),
+      where('status', '==', 'open')
+    )
+  );
+
+  return snap.docs
+    .filter((item) => item.id !== uid)
+    .map((item) => item.ref);
 }
 
 export async function createInviteCode(uid: string): Promise<{ code: string; expiresAt: number }> {
@@ -28,21 +60,38 @@ export async function createInviteCode(uid: string): Promise<{ code: string; exp
 
   const db = getDb();
   const userRef = doc(db, 'users', uid);
+  const inviteRef = doc(db, 'invites', uid);
   const expiresAt = Date.now() + INVITE_TTL_MS;
+  const legacyRefs = await revokeLegacyOpenInvites(uid);
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const code = generateInviteCode();
-    const inviteRef = doc(db, 'invites', code);
 
     try {
+      const collisionSnap = await getDocs(
+        query(collection(db, 'invites'), where('code', '==', code), limit(1))
+      );
+      const collision = collisionSnap.docs.find((item) => item.id !== uid);
+      if (collision) throw new Error('CODE_COLLISION');
+
       await runTransaction(db, async (tx) => {
         const userSnap = await tx.get(userRef);
         if (!userSnap.exists()) throw new Error('Profile not found.');
         const user = userSnap.data();
         if (user.coupleId) throw new Error('You are already connected to a partner.');
 
-        const inviteSnap = await tx.get(inviteRef);
-        if (inviteSnap.exists()) throw new Error('CODE_COLLISION');
+        const existingSnap = await tx.get(inviteRef);
+        const legacySnaps = await Promise.all(legacyRefs.map((ref) => tx.get(ref)));
+        const now = Date.now();
+
+        legacySnaps.forEach((legacySnap, index) => {
+          if (legacySnap.exists() && legacySnap.data()?.status === 'open') {
+            tx.update(legacyRefs[index], {
+              status: 'revoked',
+              revokedAt: now,
+            });
+          }
+        });
 
         tx.set(inviteRef, {
           code,
@@ -50,9 +99,15 @@ export async function createInviteCode(uid: string): Promise<{ code: string; exp
           status: 'open',
           claimedBy: null,
           coupleId: null,
-          createdAt: Date.now(),
+          createdAt: existingSnap.exists()
+            ? (existingSnap.data()?.createdAt ?? now)
+            : now,
           expiresAt,
-          createdAtServer: serverTimestamp(),
+          updatedAt: now,
+          createdAtServer: existingSnap.exists()
+            ? (existingSnap.data()?.createdAtServer ?? serverTimestamp())
+            : serverTimestamp(),
+          updatedAtServer: serverTimestamp(),
         });
       });
 
@@ -84,7 +139,7 @@ export async function acceptInviteCode(
   }
 
   const db = getDb();
-  const inviteRef = doc(db, 'invites', code);
+  const inviteRef = await findInviteRefByCode(code);
   const meRef = doc(db, 'users', uid);
 
   return runTransaction(db, async (tx) => {
@@ -92,6 +147,9 @@ export async function acceptInviteCode(
 
     if (!inviteSnap.exists()) throw new Error('Invite code not found.');
     const invite = inviteSnap.data();
+    if (normalizeInviteCode(String(invite.code ?? inviteSnap.id)) !== code) {
+      throw new Error('Invite code not found.');
+    }
     if (invite.status !== 'open') throw new Error('This invite has already been used.');
     if (invite.expiresAt && invite.expiresAt < Date.now()) {
       throw new Error('This invite has expired. Ask your partner for a new one.');
@@ -164,7 +222,13 @@ export async function disconnectFromPartner(uid: string): Promise<void> {
 
     const partnerRef = doc(db, 'users', me.partnerId);
     const coupleRef = doc(db, 'couples', me.coupleId);
-    const partnerSnap = await tx.get(partnerRef);
+
+    // Firestore requires every read to finish before any write in a transaction.
+    const [partnerSnap, coupleSnap] = await Promise.all([
+      tx.get(partnerRef),
+      tx.get(coupleRef),
+    ]);
+
     const now = Date.now();
 
     tx.update(meRef, {
@@ -184,7 +248,6 @@ export async function disconnectFromPartner(uid: string): Promise<void> {
       }
     }
 
-    const coupleSnap = await tx.get(coupleRef);
     if (coupleSnap.exists()) {
       tx.update(coupleRef, {
         disconnectedAt: now,

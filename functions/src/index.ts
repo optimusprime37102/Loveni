@@ -22,16 +22,47 @@ function requireAuth(uid?: string) {
   return uid;
 }
 
+function normalizeCode(value: unknown) {
+  return String(value || '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');
+}
+
+async function resolveInviteRef(code: string) {
+  const byCode = await db.collection('invites').where('code', '==', code).limit(1).get();
+  if (!byCode.empty) return byCode.docs[0].ref;
+  return db.collection('invites').doc(code);
+}
+
 export const createInvite = onCall(async (request) => {
   const uid = requireAuth(request.auth?.uid);
   const userRef = db.collection('users').doc(uid);
+  const inviteRef = db.collection('invites').doc(uid);
   const expiresAt = Date.now() + INVITE_TTL_MS;
+
+  const legacySnap = await db
+    .collection('invites')
+    .where('createdBy', '==', uid)
+    .where('status', '==', 'open')
+    .get();
+  const legacyRefs = legacySnap.docs
+    .filter((item) => item.id !== uid)
+    .map((item) => item.ref);
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const code = generateCode();
-    const inviteRef = db.collection('invites').doc(code);
 
     try {
+      const collisionSnap = await db
+        .collection('invites')
+        .where('code', '==', code)
+        .limit(1)
+        .get();
+      if (collisionSnap.docs.some((item) => item.id !== uid)) {
+        throw new Error('CODE_COLLISION');
+      }
+
       await db.runTransaction(async (tx) => {
         const userSnap = await tx.get(userRef);
         if (!userSnap.exists) throw new HttpsError('failed-precondition', 'Profile not found.');
@@ -39,8 +70,18 @@ export const createInvite = onCall(async (request) => {
           throw new HttpsError('failed-precondition', 'You are already connected to a partner.');
         }
 
-        const inviteSnap = await tx.get(inviteRef);
-        if (inviteSnap.exists) throw new Error('CODE_COLLISION');
+        const existingSnap = await tx.get(inviteRef);
+        const legacyDocs = await Promise.all(legacyRefs.map((ref) => tx.get(ref)));
+        const now = Date.now();
+
+        legacyDocs.forEach((legacyDoc, index) => {
+          if (legacyDoc.exists && legacyDoc.data()?.status === 'open') {
+            tx.update(legacyRefs[index], {
+              status: 'revoked',
+              revokedAt: now,
+            });
+          }
+        });
 
         tx.set(inviteRef, {
           code,
@@ -48,8 +89,9 @@ export const createInvite = onCall(async (request) => {
           status: 'open',
           claimedBy: null,
           coupleId: null,
-          createdAt: Date.now(),
+          createdAt: existingSnap.exists ? (existingSnap.data()?.createdAt ?? now) : now,
           expiresAt,
+          updatedAt: now,
         });
       });
 
@@ -65,16 +107,13 @@ export const createInvite = onCall(async (request) => {
 
 export const acceptInvite = onCall(async (request) => {
   const uid = requireAuth(request.auth?.uid);
-  const code = String(request.data?.code || '')
-    .trim()
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '');
+  const code = normalizeCode(request.data?.code);
 
   if (code.length < 4) {
     throw new HttpsError('invalid-argument', 'Enter a valid invite code.');
   }
 
-  const inviteRef = db.collection('invites').doc(code);
+  const inviteRef = await resolveInviteRef(code);
   const meRef = db.collection('users').doc(uid);
 
   const coupleId = await db.runTransaction(async (tx) => {
@@ -82,6 +121,9 @@ export const acceptInvite = onCall(async (request) => {
     if (!inviteSnap.exists) throw new HttpsError('not-found', 'Invite code not found.');
 
     const invite = inviteSnap.data()!;
+    if (normalizeCode(invite.code ?? inviteSnap.id) !== code) {
+      throw new HttpsError('not-found', 'Invite code not found.');
+    }
     if (invite.status !== 'open') {
       throw new HttpsError('failed-precondition', 'This invite has already been used.');
     }
@@ -105,7 +147,7 @@ export const acceptInvite = onCall(async (request) => {
       throw new HttpsError('failed-precondition', 'That person is already connected to someone.');
     }
 
-    const coupleRef = db.collection('couples').doc();
+    const coupleRef = db.collection('couples').doc(`${invite.createdBy}_${uid}`);
     const now = Date.now();
 
     tx.set(coupleRef, {
@@ -156,7 +198,12 @@ export const disconnectPartner = onCall(async (request) => {
 
     const partnerRef = db.collection('users').doc(me.partnerId);
     const coupleRef = db.collection('couples').doc(me.coupleId);
-    const partnerSnap = await tx.get(partnerRef);
+
+    // Firestore requires every read to finish before any write in a transaction.
+    const [partnerSnap, coupleSnap] = await Promise.all([
+      tx.get(partnerRef),
+      tx.get(coupleRef),
+    ]);
     const now = Date.now();
 
     tx.update(meRef, {
@@ -173,12 +220,14 @@ export const disconnectPartner = onCall(async (request) => {
       });
     }
 
-    tx.update(coupleRef, {
-      memberIds: [],
-      disconnectedAt: now,
-      disconnectedBy: uid,
-      updatedAt: now,
-    });
+    if (coupleSnap.exists) {
+      tx.update(coupleRef, {
+        memberIds: [],
+        disconnectedAt: now,
+        disconnectedBy: uid,
+        updatedAt: now,
+      });
+    }
   });
 
   return { ok: true };

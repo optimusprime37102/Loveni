@@ -88,22 +88,36 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    match /invites/{code} {
+    // One invite doc per creator: invites/{uid}. Legacy docs used the code as the id.
+    match /invites/{inviteId} {
       allow read: if signedIn();
 
       allow create: if signedIn()
+        && inviteId == request.auth.uid
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.status == 'open'
         && request.resource.data.claimedBy == null
+        && request.resource.data.code is string
         && isUnpairedData(userDoc(request.auth.uid));
 
-      allow update: if signedIn()
-        && resource.data.status == 'open'
-        && (
+      allow update: if signedIn() && (
+          // Creator regenerates / refreshes their single invite doc.
+          (inviteId == request.auth.uid
+            && resource.data.createdBy == request.auth.uid
+            && request.resource.data.createdBy == request.auth.uid
+            && request.resource.data.status == 'open'
+            && request.resource.data.claimedBy == null
+            && request.resource.data.code is string
+            && isUnpairedData(userDoc(request.auth.uid)))
+          ||
+          // Creator revokes leftover legacy invite docs.
           (resource.data.createdBy == request.auth.uid
+            && resource.data.status == 'open'
             && request.resource.data.status == 'revoked')
           ||
-          (request.auth.uid != resource.data.createdBy
+          // Acceptor claims an open invite.
+          (resource.data.status == 'open'
+            && request.auth.uid != resource.data.createdBy
             && request.resource.data.status == 'claimed'
             && request.resource.data.claimedBy == request.auth.uid
             && request.resource.data.coupleId is string
