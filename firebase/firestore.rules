@@ -1,0 +1,164 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userDoc(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+
+    function isUnpairedData(data) {
+      return !('coupleId' in data) || data.coupleId == null;
+    }
+
+    function isCoupleMember(coupleId) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/couples/$(coupleId))
+        && request.auth.uid in get(/databases/$(database)/documents/couples/$(coupleId)).data.memberIds;
+    }
+
+    function linkingKeysOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['coupleId', 'partnerId', 'updatedAt', 'updatedAtServer'])
+        || request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['coupleId', 'partnerId', 'updatedAt']);
+    }
+
+    function isSelfProfileUpdate(userId) {
+      return isSelf(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny(['coupleId', 'partnerId']);
+    }
+
+    function isSelfLink(userId) {
+      return isSelf(userId)
+        && isUnpairedData(resource.data)
+        && request.resource.data.coupleId is string
+        && request.resource.data.partnerId is string
+        && linkingKeysOnly();
+    }
+
+    function isSelfUnlink(userId) {
+      return isSelf(userId)
+        && !isUnpairedData(resource.data)
+        && request.resource.data.coupleId == null
+        && request.resource.data.partnerId == null
+        && linkingKeysOnly();
+    }
+
+    // Invite acceptor links the invite creator in the same transaction.
+    function isPartnerLinkUpdate(userId) {
+      return signedIn()
+        && request.auth.uid != userId
+        && isUnpairedData(resource.data)
+        && request.resource.data.partnerId == request.auth.uid
+        && request.resource.data.coupleId is string
+        && linkingKeysOnly();
+    }
+
+    function isPartnerUnlinkUpdate() {
+      return signedIn()
+        && resource.data.partnerId == request.auth.uid
+        && request.resource.data.coupleId == null
+        && request.resource.data.partnerId == null
+        && linkingKeysOnly();
+    }
+
+    match /users/{userId} {
+      // Profiles are readable to signed-in users (needed for invite accept + partner sync).
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if isSelf(userId)
+        && request.resource.data.uid == userId
+        && isUnpairedData(request.resource.data);
+
+      allow update: if isSelfProfileUpdate(userId)
+        || isSelfLink(userId)
+        || isSelfUnlink(userId)
+        || isPartnerLinkUpdate(userId)
+        || isPartnerUnlinkUpdate();
+
+      allow delete: if false;
+    }
+
+    match /invites/{code} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.status == 'open'
+        && request.resource.data.claimedBy == null
+        && isUnpairedData(userDoc(request.auth.uid));
+
+      allow update: if signedIn()
+        && resource.data.status == 'open'
+        && (
+          (resource.data.createdBy == request.auth.uid
+            && request.resource.data.status == 'revoked')
+          ||
+          (request.auth.uid != resource.data.createdBy
+            && request.resource.data.status == 'claimed'
+            && request.resource.data.claimedBy == request.auth.uid
+            && request.resource.data.coupleId is string
+            && isUnpairedData(userDoc(request.auth.uid)))
+        );
+
+      allow delete: if false;
+    }
+
+    match /couples/{coupleId} {
+      allow read: if signedIn()
+        && (request.auth.uid in resource.data.memberIds
+            || isCoupleMember(coupleId));
+
+      allow create: if signedIn()
+        && request.auth.uid in request.resource.data.memberIds
+        && request.resource.data.memberIds.size() == 2
+        && request.resource.data.createdBy in request.resource.data.memberIds;
+
+      allow update: if signedIn()
+        && request.auth.uid in resource.data.memberIds;
+
+      allow delete: if false;
+    }
+
+    match /notes/{noteId} {
+      allow read: if signedIn()
+        && isCoupleMember(resource.data.coupleId)
+        && resource.data.deleted == false;
+
+      allow create: if signedIn()
+        && request.resource.data.fromUid == request.auth.uid
+        && isCoupleMember(request.resource.data.coupleId)
+        && request.resource.data.deleted == false
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500;
+
+      allow update: if signedIn()
+        && resource.data.fromUid == request.auth.uid
+        && isCoupleMember(resource.data.coupleId)
+        && request.resource.data.deleted == true;
+
+      allow delete: if false;
+    }
+
+    match /moods/{moodId} {
+      allow read: if signedIn() && isCoupleMember(resource.data.coupleId);
+
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && isCoupleMember(request.resource.data.coupleId)
+        && request.resource.data.mood in ['🥰', '😊', '😔', '😴', '🥺', '😍'];
+
+      allow update, delete: if false;
+    }
+  }
+}

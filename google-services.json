@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "447080058182",
+    "firebase_url": "https://my-testapp-d679b-default-rtdb.firebaseio.com",
+    "project_id": "my-testapp-d679b",
+    "storage_bucket": "my-testapp-d679b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447080058182:android:4d46aba9e735392c802947",
+        "android_client_info": {
+          "package_name": "com.loveni.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOLqAfwegThQosvd9UIVovD7rY2vyqEls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
