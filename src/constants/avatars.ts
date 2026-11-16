@@ -10,7 +10,7 @@ export interface AvatarOption {
 
 export const AVATARS: AvatarOption[] = [
   { id: 'rose', emoji: '🌹', label: 'Rose', gradient: [palette.rose, palette.softRose] },
-  { id: 'lavender', emoji: '💜', label: 'Lavender', gradient: [palette.lavender, '#C4B5FD'] },
+  { id: 'lavender', emoji: '💜', label: 'Lavender', gradient: [palette.lavenderMist, '#C4B5FD'] },
   { id: 'peach', emoji: '🍑', label: 'Peach', gradient: [palette.peach, '#FFD0C4'] },
   { id: 'blossom', emoji: '🌸', label: 'Blossom', gradient: ['#F9A8D4', palette.rose] },
   { id: 'moon', emoji: '🌙', label: 'Moon', gradient: ['#A78BFA', '#7C6AE8'] },

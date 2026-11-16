@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
 import { Text } from '@/src/components/ui/Text';
@@ -50,19 +50,13 @@ export default function Index() {
     );
   }
 
-  if (loading || (user && !skipChecked)) {
-    return (
-      <View style={[styles.boot, { backgroundColor: colors.background }]}>
-        <Text variant="display" color={colors.primary}>
-          Loveni ❤️
-        </Text>
-        <ActivityIndicator color={colors.primary} style={{ marginTop: 24 }} />
-      </View>
-    );
-  }
-
+  // Auth already resolved during splash — send guests straight to welcome.
   if (!user) {
     return <Redirect href="/(onboarding)/welcome" />;
+  }
+
+  if (loading || !skipChecked) {
+    return <View style={[styles.boot, { backgroundColor: colors.background }]} />;
   }
 
   if (!profile?.onboardingComplete) {
@@ -79,8 +73,6 @@ export default function Index() {
 const styles = StyleSheet.create({
   boot: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   center: {
     flex: 1,

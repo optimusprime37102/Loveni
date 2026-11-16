@@ -54,7 +54,7 @@ export default function EditRelationshipScreen() {
       </View>
 
       <Card>
-        <Text variant="label" color={colors.secondary}>
+        <Text variant="label" color={colors.primary}>
           Start date
         </Text>
         <Text variant="title" style={{ marginTop: spacing.sm }}>

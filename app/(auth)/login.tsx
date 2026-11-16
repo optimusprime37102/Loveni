@@ -1,16 +1,16 @@
 import { Link, Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { AuthShell } from '@/src/components/auth/AuthShell';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
-import { Screen } from '@/src/components/ui/Screen';
 import { Text } from '@/src/components/ui/Text';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { setPartnerPromptSkipped } from '@/src/utils/partnerPrompt';
 import { validateEmail, validatePassword } from '@/src/utils/validation';
-import { spacing } from '@/src/theme/spacing';
+import { radii, spacing } from '@/src/theme/spacing';
 
 export default function LoginScreen() {
   const { user, signIn } = useAuth();
@@ -41,7 +41,6 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       const signedInUser = await signIn(email, password);
-      // Show connect-partner again after each login until they connect or skip.
       await setPartnerPromptSkipped(signedInUser.uid, false);
       haptics.success();
       router.replace('/');
@@ -54,54 +53,73 @@ export default function LoginScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Text variant="display" style={styles.title}>
-        Welcome back
-      </Text>
-      <Text muted style={styles.subtitle}>
-        Sign in to keep your shared moments in sync.
-      </Text>
-
-      <View style={styles.form}>
-        <Input
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          autoComplete="email"
-          placeholder="you@email.com"
-          error={errors.email}
-        />
-        <Input
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholder="Your password"
-          error={errors.password}
-        />
-        {errors.general ? (
-          <Text variant="caption" color={colors.danger}>
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in to keep your shared moments in sync."
+      footer={
+        <Text muted center>
+          New here?{' '}
+          <Link href="/(auth)/signup" style={{ color: colors.primary }}>
+            Create an account
+          </Link>
+        </Text>
+      }
+    >
+      {errors.general ? (
+        <View style={[styles.errorBanner, { backgroundColor: 'rgba(228, 87, 87, 0.1)' }]}>
+          <Text variant="bodySmall" color={colors.danger}>
             {errors.general}
           </Text>
-        ) : null}
-        <Button title="Sign in" onPress={onSubmit} loading={loading} />
-      </View>
+        </View>
+      ) : null}
 
-      <Text muted center style={styles.footer}>
-        New here?{' '}
-        <Link href="/(auth)/signup" style={{ color: colors.primary }}>
-          Create an account
-        </Link>
-      </Text>
-    </Screen>
+      <Input
+        label="Email"
+        value={email}
+        onChangeText={(value) => {
+          setEmail(value);
+          if (errors.email || errors.general) {
+            setErrors((prev) => ({ ...prev, email: undefined, general: undefined }));
+          }
+        }}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoComplete="email"
+        textContentType="emailAddress"
+        placeholder="you@email.com"
+        error={errors.email}
+        returnKeyType="next"
+      />
+      <Input
+        label="Password"
+        value={password}
+        onChangeText={(value) => {
+          setPassword(value);
+          if (errors.password || errors.general) {
+            setErrors((prev) => ({ ...prev, password: undefined, general: undefined }));
+          }
+        }}
+        secureTextEntry
+        autoComplete="password"
+        textContentType="password"
+        placeholder="Your password"
+        error={errors.password}
+        returnKeyType="go"
+        onSubmitEditing={onSubmit}
+      />
+
+      <Button title="Sign in" onPress={onSubmit} loading={loading} style={styles.submit} />
+    </AuthShell>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { marginTop: spacing.xl },
-  subtitle: { marginBottom: spacing.xl, marginTop: spacing.xs },
-  form: { gap: spacing.md },
-  footer: { marginTop: spacing.xl },
+  errorBanner: {
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  submit: {
+    marginTop: spacing.xs,
+  },
 });

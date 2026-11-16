@@ -1,46 +1,40 @@
 import {
-  CormorantGaramond_500Medium,
-  CormorantGaramond_600SemiBold,
-  CormorantGaramond_700Bold,
-} from '@expo-google-fonts/cormorant-garamond';
-import {
-  DMSans_400Regular,
-  DMSans_500Medium,
-  DMSans_700Bold,
-} from '@expo-google-fonts/dm-sans';
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
-import { AuthProvider } from '@/src/contexts/AuthContext';
+import { SplashView, SPLASH_MS } from '@/src/components/SplashView';
+import { AuthProvider, useAuth } from '@/src/contexts/AuthContext';
 import { CoupleProvider } from '@/src/contexts/CoupleContext';
 import { ThemeProvider, useTheme } from '@/src/contexts/ThemeContext';
 
 export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ duration: 400, fade: true });
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    CormorantGaramond_500Medium,
-    CormorantGaramond_600SemiBold,
-    CormorantGaramond_700Bold,
-    DMSans_400Regular,
-    DMSans_500Medium,
-    DMSans_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
   });
 
   useEffect(() => {
     if (error) throw error;
   }, [error]);
-
-  useEffect(() => {
-    if (loaded) SplashScreen.hideAsync();
-  }, [loaded]);
 
   if (!loaded) return null;
 
@@ -49,12 +43,41 @@ export default function RootLayout() {
       <ThemeProvider>
         <AuthProvider>
           <CoupleProvider>
-            <RootNavigator />
+            <AppEntry />
           </CoupleProvider>
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
+}
+
+function AppEntry() {
+  const { loading: authLoading } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
+  const startedAt = useRef(Date.now());
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    let cancelled = false;
+
+    const finish = async () => {
+      await SplashScreen.hideAsync();
+      const remaining = Math.max(0, SPLASH_MS - (Date.now() - startedAt.current));
+      await new Promise((resolve) => setTimeout(resolve, remaining));
+      if (!cancelled) setShowSplash(false);
+    };
+
+    void finish();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading]);
+
+  if (showSplash) return <SplashView />;
+
+  return <RootNavigator />;
 }
 
 function RootNavigator() {

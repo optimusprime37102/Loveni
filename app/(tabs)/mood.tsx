@@ -67,7 +67,7 @@ export default function MoodScreen() {
       </Text>
 
       <Card>
-        <Text variant="label" color={colors.secondary}>
+        <Text variant="label" color={colors.primary}>
           Choose a mood
         </Text>
         <View style={styles.grid}>

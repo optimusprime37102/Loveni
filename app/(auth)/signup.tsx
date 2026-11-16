@@ -1,9 +1,9 @@
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { AuthShell } from '@/src/components/auth/AuthShell';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
-import { Screen } from '@/src/components/ui/Screen';
 import { Text } from '@/src/components/ui/Text';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
@@ -13,7 +13,7 @@ import {
   validateName,
   validatePassword,
 } from '@/src/utils/validation';
-import { spacing } from '@/src/theme/spacing';
+import { radii, spacing } from '@/src/theme/spacing';
 
 export default function SignupScreen() {
   const { signUp } = useAuth();
@@ -25,6 +25,13 @@ export default function SignupScreen() {
   const [confirm, setConfirm] = useState('');
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
   const [loading, setLoading] = useState(false);
+
+  const clearFieldError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field] && !prev.general) return prev;
+      return { ...prev, [field]: undefined, general: undefined };
+    });
+  };
 
   const onSubmit = async () => {
     const next = {
@@ -54,70 +61,97 @@ export default function SignupScreen() {
   };
 
   return (
-    <Screen scroll>
-      <Text variant="display" style={styles.title}>
-        Join Loveni
-      </Text>
-      <Text muted style={styles.subtitle}>
-        Create your account, then invite the one who matters.
-      </Text>
-
-      <View style={styles.form}>
-        <Input
-          label="Name"
-          value={name}
-          onChangeText={setName}
-          autoCapitalize="words"
-          placeholder="Your first name"
-          error={errors.name}
-        />
-        <Input
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          autoComplete="email"
-          placeholder="you@email.com"
-          error={errors.email}
-        />
-        <Input
-          label="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholder="At least 6 characters"
-          error={errors.password}
-        />
-        <Input
-          label="Confirm password"
-          value={confirm}
-          onChangeText={setConfirm}
-          secureTextEntry
-          placeholder="Repeat password"
-          error={errors.confirm}
-        />
-        {errors.general ? (
-          <Text variant="caption" color={colors.danger}>
+    <AuthShell
+      title="Join Loveni"
+      subtitle="Create your account, then invite the one who matters."
+      footer={
+        <Text muted center>
+          Already have an account?{' '}
+          <Link href="/(auth)/login" style={{ color: colors.primary }}>
+            Sign in
+          </Link>
+        </Text>
+      }
+    >
+      {errors.general ? (
+        <View style={[styles.errorBanner, { backgroundColor: 'rgba(228, 87, 87, 0.1)' }]}>
+          <Text variant="bodySmall" color={colors.danger}>
             {errors.general}
           </Text>
-        ) : null}
-        <Button title="Create account" onPress={onSubmit} loading={loading} />
-      </View>
+        </View>
+      ) : null}
 
-      <Text muted center style={styles.footer}>
-        Already have an account?{' '}
-        <Link href="/(auth)/login" style={{ color: colors.primary }}>
-          Sign in
-        </Link>
-      </Text>
-    </Screen>
+      <Input
+        label="Name"
+        value={name}
+        onChangeText={(value) => {
+          setName(value);
+          clearFieldError('name');
+        }}
+        autoCapitalize="words"
+        autoComplete="name"
+        textContentType="name"
+        placeholder="Your first name"
+        error={errors.name}
+        returnKeyType="next"
+      />
+      <Input
+        label="Email"
+        value={email}
+        onChangeText={(value) => {
+          setEmail(value);
+          clearFieldError('email');
+        }}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoComplete="email"
+        textContentType="emailAddress"
+        placeholder="you@email.com"
+        error={errors.email}
+        returnKeyType="next"
+      />
+      <Input
+        label="Password"
+        value={password}
+        onChangeText={(value) => {
+          setPassword(value);
+          clearFieldError('password');
+        }}
+        secureTextEntry
+        autoComplete="new-password"
+        textContentType="newPassword"
+        placeholder="At least 6 characters"
+        error={errors.password}
+        returnKeyType="next"
+      />
+      <Input
+        label="Confirm password"
+        value={confirm}
+        onChangeText={(value) => {
+          setConfirm(value);
+          clearFieldError('confirm');
+        }}
+        secureTextEntry
+        autoComplete="new-password"
+        textContentType="newPassword"
+        placeholder="Repeat password"
+        error={errors.confirm}
+        returnKeyType="go"
+        onSubmitEditing={onSubmit}
+      />
+
+      <Button title="Create account" onPress={onSubmit} loading={loading} style={styles.submit} />
+    </AuthShell>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { marginTop: spacing.xl },
-  subtitle: { marginBottom: spacing.xl, marginTop: spacing.xs },
-  form: { gap: spacing.md },
-  footer: { marginTop: spacing.xl },
+  errorBanner: {
+    borderRadius: radii.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  submit: {
+    marginTop: spacing.xs,
+  },
 });

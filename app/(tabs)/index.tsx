@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { DaysTogetherHero } from '@/src/components/home/DaysTogetherHero';
 import { LatestNoteCard } from '@/src/components/home/LatestNoteCard';
+import { MilestonesCard } from '@/src/components/home/MilestonesCard';
 import { MoodPreviewCard } from '@/src/components/home/MoodPreviewCard';
 import { QuickActions } from '@/src/components/home/QuickActions';
 import { Button } from '@/src/components/ui/Button';
@@ -52,6 +53,9 @@ export default function HomeScreen() {
     );
   }
 
+  const firstName = profile.displayName.split(' ')[0];
+  const partnerName = partner?.displayName.split(' ')[0];
+
   const actions = [
     {
       emoji: '💞',
@@ -76,9 +80,11 @@ export default function HomeScreen() {
     <Screen scroll>
       <View style={styles.header}>
         <Text variant="caption" color={colors.primary}>
-          Loveni ❤️
+          Your little world together
         </Text>
-        <Text variant="title">Hello, {profile.displayName.split(' ')[0]}</Text>
+        <Text variant="title" color={colors.textHeading}>
+          {isConnected && partnerName ? `${firstName} & ${partnerName}` : `Hello, ${firstName}`}
+        </Text>
       </View>
 
       <View style={styles.stack}>
@@ -98,7 +104,6 @@ export default function HomeScreen() {
         ) : null}
 
         <QuickActions actions={actions} />
-
         <MoodPreviewCard me={profile} partner={partner} />
         <LatestNoteCard
           note={latestNote}
@@ -109,6 +114,7 @@ export default function HomeScreen() {
               : router.push('/(onboarding)/connect-partner')
           }
         />
+        <MilestonesCard startDate={couple?.startDate ?? null} connected={isConnected} />
       </View>
     </Screen>
   );
