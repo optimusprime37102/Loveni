@@ -55,7 +55,7 @@ export default function ProfileScreen() {
   return (
     <Screen scroll>
       <Text variant="title" style={styles.title}>
-        Profile
+        Settings
       </Text>
 
       <Card style={styles.heroCard}>

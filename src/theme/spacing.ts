@@ -1,19 +1,24 @@
+import { LoveniTheme } from './colors';
+
 export const spacing = {
-  xxs: 4,
-  xs: 8,
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 24,
+  xxs: LoveniTheme.spacing.xs,
+  xs: LoveniTheme.spacing.sm,
+  sm: LoveniTheme.spacing.md,
+  md: LoveniTheme.spacing.lg,
+  lg: LoveniTheme.spacing.xl,
+  xl: LoveniTheme.spacing.xxl,
   xxl: 32,
   xxxl: 40,
   huge: 56,
 } as const;
 
 export const radii = {
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 24,
-  pill: 999,
+  sm: LoveniTheme.radius.small,
+  md: LoveniTheme.radius.medium,
+  lg: LoveniTheme.radius.card,
+  xl: LoveniTheme.radius.hero,
+  xxl: 28,
+  card: LoveniTheme.radius.card,
+  hero: LoveniTheme.radius.hero,
+  pill: LoveniTheme.radius.pill,
 } as const;

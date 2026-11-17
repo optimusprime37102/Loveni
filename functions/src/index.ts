@@ -147,7 +147,9 @@ export const acceptInvite = onCall(async (request) => {
       throw new HttpsError('failed-precondition', 'That person is already connected to someone.');
     }
 
-    const coupleRef = db.collection('couples').doc(`${invite.createdBy}_${uid}`);
+    // Fresh id every connect — deterministic ids break reconnect after disconnect
+    // leaves couples/{id} with memberIds: [] (client set() becomes a denied update).
+    const coupleRef = db.collection('couples').doc();
     const now = Date.now();
 
     tx.set(coupleRef, {
@@ -221,12 +223,7 @@ export const disconnectPartner = onCall(async (request) => {
     }
 
     if (coupleSnap.exists) {
-      tx.update(coupleRef, {
-        memberIds: [],
-        disconnectedAt: now,
-        disconnectedBy: uid,
-        updatedAt: now,
-      });
+      tx.delete(coupleRef);
     }
   });
 

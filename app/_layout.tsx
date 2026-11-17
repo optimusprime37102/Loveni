@@ -1,4 +1,8 @@
 import {
+  Caveat_500Medium,
+  Caveat_700Bold,
+} from '@expo-google-fonts/caveat';
+import {
   PlusJakartaSans_400Regular,
   PlusJakartaSans_500Medium,
   PlusJakartaSans_600SemiBold,
@@ -30,6 +34,8 @@ export default function RootLayout() {
     PlusJakartaSans_600SemiBold,
     PlusJakartaSans_700Bold,
     PlusJakartaSans_800ExtraBold,
+    Caveat_500Medium,
+    Caveat_700Bold,
   });
 
   useEffect(() => {

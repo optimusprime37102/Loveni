@@ -29,7 +29,7 @@ export function Text({
       style={[
         base,
         {
-          color: color || (muted ? colors.textSecondary : colors.text),
+          color: color || (muted ? colors.textMuted : colors.text),
           textAlign: center ? 'center' : undefined,
         },
         style,

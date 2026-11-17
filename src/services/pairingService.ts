@@ -166,7 +166,10 @@ export async function acceptInviteCode(
     const partner = partnerSnap.data();
     if (partner.coupleId) throw new Error('That person is already connected to someone.');
 
-    const coupleRef = doc(db, 'couples', `${invite.createdBy}_${uid}`);
+    // Always allocate a fresh couple id. Reusing `${creator}_${joiner}` breaks after
+    // disconnect because that doc still exists with memberIds: [] and set() becomes
+    // an update that security rules reject.
+    const coupleRef = doc(collection(db, 'couples'));
     const now = Date.now();
 
     tx.set(coupleRef, {
@@ -249,12 +252,8 @@ export async function disconnectFromPartner(uid: string): Promise<void> {
     }
 
     if (coupleSnap.exists()) {
-      tx.update(coupleRef, {
-        disconnectedAt: now,
-        disconnectedBy: uid,
-        memberIds: [],
-        updatedAt: now,
-      });
+      // Delete so a later reconnect cannot hit a leftover empty-memberIds shell.
+      tx.delete(coupleRef);
     }
   });
 }

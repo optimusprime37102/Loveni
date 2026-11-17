@@ -334,7 +334,7 @@ function AnimatedLogo({ size }: { size: number }) {
           </ClipPath>
           <SvgGradient id="liquidBack" x1="0%" y1="0%" x2="100%" y2="100%">
             <Stop offset="0%" stopColor="#FF8FB0" stopOpacity="0.85" />
-            <Stop offset="55%" stopColor="#F45B8C" stopOpacity="0.95" />
+            <Stop offset="55%" stopColor="#F25F82" stopOpacity="0.95" />
             <Stop offset="100%" stopColor="#C2185B" stopOpacity="1" />
           </SvgGradient>
           <SvgGradient id="liquidFront" x1="10%" y1="0%" x2="90%" y2="100%">
@@ -548,7 +548,7 @@ export function SplashView() {
   return (
     <View style={styles.root}>
       <LinearGradient
-        colors={['#FFE8F0', '#FFF0F5', '#FFF7F9', '#FFFCFD']}
+        colors={['#FFE2EA', '#FFF0F4', '#FDEEF1', '#FFF8FA']}
         locations={[0, 0.28, 0.62, 1]}
         start={{ x: 0.1, y: 0 }}
         end={{ x: 0.9, y: 1 }}

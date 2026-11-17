@@ -20,7 +20,7 @@ export function Card({ children, padded = true, muted, style, ...rest }: Props) 
         theme.shadows.card,
         {
           backgroundColor: muted ? colors.surfaceMuted : colors.surface,
-          borderColor: colors.borderStrong,
+          borderColor: colors.border,
           padding: padded ? spacing.lg : 0,
         },
         style,
@@ -33,7 +33,7 @@ export function Card({ children, padded = true, muted, style, ...rest }: Props) 
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radii.xl,
+    borderRadius: radii.card,
     borderWidth: 1,
   },
 });

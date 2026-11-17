@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="280" viewBox="0 0 480 140" fill="none">
+  <title>Loveni Love Notes — curved decorative envelope artwork</title>
+  <desc>Soft pink envelope with heart seal, two floating hearts, sparkle accents, leafy sprigs, and gently curved pastel-pink mounds. All editable vectors on transparency.</desc>
+  <defs>
+    <linearGradient id="pinkWaveLeft" x1="20" y1="90" x2="104" y2="148" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6CAD9" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#FBDCE6" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#FFE8EF" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="pinkWaveRight" x1="460" y1="89" x2="361" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F6C6D8" stop-opacity="0.78"/>
+      <stop offset="0.7" stop-color="#FBDCE6" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#FFF1F5" stop-opacity="0.09"/>
+    </linearGradient>
+    <linearGradient id="bottomPink" x1="240" y1="104" x2="240" y2="153" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF1F5" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#F9D5E1" stop-opacity="0.40"/>
+    </linearGradient>
+    <linearGradient id="leafPink" x1="0" y1="0" x2="20" y2="36" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFA9C4"/>
+      <stop offset="1" stop-color="#F18DB0"/>
+    </linearGradient>
+    <linearGradient id="backEnvelope" x1="188" y1="38" x2="299" y2="122" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE8EF"/>
+      <stop offset="0.48" stop-color="#FFD6E3"/>
+      <stop offset="1" stop-color="#F7BBCF"/>
+    </linearGradient>
+    <linearGradient id="leftFold" x1="184" y1="67" x2="245" y2="119" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F9BFD2"/>
+      <stop offset="1" stop-color="#FFE3E9"/>
+    </linearGradient>
+    <linearGradient id="rightFold" x1="290" y1="56" x2="239" y2="117" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6BFD2"/>
+      <stop offset="1" stop-color="#FFE5EB"/>
+    </linearGradient>
+    <linearGradient id="frontFold" x1="243" y1="82" x2="243" y2="126" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFDDE7"/>
+      <stop offset="1" stop-color="#F9CBD9"/>
+    </linearGradient>
+    <linearGradient id="topFold" x1="245" y1="35" x2="245" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE9EF"/>
+      <stop offset="1" stop-color="#F8CCDA"/>
+    </linearGradient>
+    <linearGradient id="heartPink" x1="0" y1="0" x2="0" y2="33" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF78A3"/>
+      <stop offset="0.5" stop-color="#FA5488"/>
+      <stop offset="1" stop-color="#F43174"/>
+    </linearGradient>
+    <linearGradient id="heartSeal" x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF6896"/>
+      <stop offset="1" stop-color="#F03275"/>
+    </linearGradient>
+    <radialGradient id="underEnvelope" cx="0" cy="0" r="1" gradientTransform="translate(243 120) rotate(90) scale(24 95)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2A8C1" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#F2A8C1" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="envelopeShadow" x="160" y="29" width="165" height="123" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.7" result="a"/>
+      <feOffset in="a" dy="5" result="b"/>
+      <feFlood flood-color="#E99AB5" flood-opacity="0.20" result="c"/>
+      <feComposite in="c" in2="b" operator="in" result="d"/>
+      <feMerge><feMergeNode in="d"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="sealShadow" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="a"/><feOffset in="a" dy="2" result="b"/>
+      <feFlood flood-color="#D8366B" flood-opacity="0.25" result="c"/>
+      <feComposite in="c" in2="b" operator="in" result="d"/>
+      <feMerge><feMergeNode in="d"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <g id="star"><path d="M0 -9.6 C1.4 -3.0 2.8 -1.5 9.6 0 C2.8 1.5 1.4 3 0 9.6 C-1.4 3 -2.8 1.5 -9.6 0 C-2.8 -1.5 -1.4 -3 0 -9.6Z"/></g>
+    <g id="heart"><path d="M0 8 C0 1.5 5.2 -2 10.3 -2 C15 -2 18.6 0.7 21 4.8 C23.4 0.7 27 -2 31.7 -2 C36.8 -2 42 1.5 42 8 C42 16 35 22.3 21 32 C7 22.3 0 16 0 8 Z"/></g>
+  </defs>
+
+  <!-- Shallow CURVED hills with a concave center. No straight base line. -->
+  <path d="M10 140 C19 129 24 116 40 107 C55 97 65 96 83 104 C103 113 121 133 160 141 C197 147 224 144 240 144 C271 145 304 143 338 132 C366 123 393 106 410 101 C435 92 450 105 463 126 C468 133 472 137 478 140 Z" fill="url(#bottomPink)" opacity=".26"/>
+  <path d="M4 140 C25 130 28 109 49 103 C64 97 78 98 96 111 C112 124 121 136 151 141 C172 144 187 143 200 145 C148 149 64 151 4 140Z" fill="url(#pinkWaveLeft)" opacity=".76"/>
+  <path d="M479 140 C455 125 456 108 436 101 C425 97 414 98 400 107 C385 118 373 129 342 138 C322 143 308 144 292 145 C350 148 425 151 479 140Z" fill="url(#pinkWaveRight)" opacity=".75"/>
+  <path d="M0 140 C41 129 67 126 96 132 C136 140 185 143 239 143 C296 143 338 139 382 130 C416 124 443 130 480 140 L480 148 L0 148 Z" fill="#FCE0E9" opacity=".22"/>
+
+  <!-- Soft leaves left: two thin curving sprigs, matching low side placement. -->
+  <g opacity=".86" fill="url(#leafPink)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M69 125 C68 114 73 100 79 89 C83 81 88 73 92 67" stroke="#ED97B6" stroke-width="1.6"/>
+    <path d="M68 124 C59 115 53 108 50 97" stroke="#ED97B6" stroke-width="1.55"/>
+    <path d="M69 124 C66 113 65 106 61 100" stroke="#ED97B6" stroke-width="1.3"/>
+    <path d="M71 108 C61 104 56 97 54 87 C63 88 69 97 71 108Z"/>
+    <path d="M78 93 C73 82 75 73 81 66 C87 75 83 86 78 93Z"/>
+    <path d="M82 82 C81 72 85 62 93 57 C98 66 91 77 82 82Z"/>
+    <path d="M75 100 C83 90 93 86 103 88 C99 99 88 104 75 100Z"/>
+    <path d="M70 120 C58 117 51 113 48 106 C59 106 65 111 70 120Z"/>
+    <path d="M72 123 C78 114 89 109 101 110 C97 121 84 125 72 123Z"/>
+    <path d="M67 123 C60 126 50 126 45 119 C53 114 62 117 67 123Z"/>
+    <path d="M66 111 C62 103 60 96 62 88 C71 95 72 103 66 111Z"/>
+  </g>
+
+  <!-- Soft leaves right, slightly asymmetric as in the reference -->
+  <g opacity=".86" fill="url(#leafPink)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M405 125 C407 114 406 98 399 86 C394 76 392 67 390 63" stroke="#ED97B6" stroke-width="1.7"/>
+    <path d="M404 124 C413 111 416 99 424 88" stroke="#ED97B6" stroke-width="1.5"/>
+    <path d="M404 125 C393 119 388 111 386 103" stroke="#ED97B6" stroke-width="1.4"/>
+    <path d="M397 88 C391 80 388 73 388 65 C398 68 401 79 397 88Z"/>
+    <path d="M404 101 C402 89 405 79 411 75 C419 84 413 96 404 101Z"/>
+    <path d="M414 108 C419 98 429 91 436 90 C435 101 427 109 414 108Z"/>
+    <path d="M400 95 C392 88 384 85 376 85 C380 94 389 99 400 95Z"/>
+    <path d="M407 119 C416 113 428 111 437 113 C433 124 417 126 407 119Z"/>
+    <path d="M402 125 C391 126 383 122 380 115 C390 113 397 117 402 125Z"/>
+    <path d="M405 118 C400 111 398 102 400 95 C407 101 410 110 405 118Z"/>
+    <path d="M417 109 C422 102 424 94 421 87 C414 91 413 101 417 109Z" opacity=".86"/>
+  </g>
+
+  <!-- Tiny soft sparkles around the envelope -->
+  <g fill="#F7A8C4" opacity=".83">
+    <use href="#star" transform="translate(144 51) scale(.95)"/>
+    <use href="#star" transform="translate(161 76) scale(.56)"/>
+    <use href="#star" transform="translate(326 51) scale(1.12)"/>
+    <use href="#star" transform="translate(342 76) scale(.46)" opacity=".66"/>
+    <use href="#star" transform="translate(313 79) scale(.34)" opacity=".64"/>
+    <use href="#star" transform="translate(118 82) scale(.28)" opacity=".47"/>
+    <use href="#star" transform="translate(361 86) scale(.25)" opacity=".48"/>
+  </g>
+
+  <ellipse cx="239" cy="117" rx="69" ry="16" fill="url(#underEnvelope)"/>
+
+  <!-- Gently tilted envelope. All individual folds remain editable. -->
+  <g transform="rotate(5 242 78)" filter="url(#envelopeShadow)">
+    <rect x="185" y="39" width="112" height="81" rx="11" fill="url(#backEnvelope)"/>
+    <path d="M185 57 C188 64 197 68 210 78 L240 99 L185 120Z" fill="url(#leftFold)" opacity=".91"/>
+    <path d="M297 57 C293 66 281 74 271 81 L242 99 L297 120Z" fill="url(#rightFold)" opacity=".93"/>
+    <path d="M185 50 C185 43 190 39 197 39 H285 C293 39 298 45 297 52 C295 63 279 70 269 77 L247 89 Q241 93 236 89 L210 73 C197 65 185 58 185 50Z" fill="url(#topFold)"/>
+    <path d="M185.5 52 C189 62 213 76 239 91" stroke="#FFF0F3" stroke-width="1.1" opacity=".60"/>
+    <path d="M296.2 53 C292 64 268 78 243 91" stroke="#FFF0F3" stroke-width="1" opacity=".58"/>
+    <path d="M187 118 Q188 116 193 113 L236 86 Q241 83 246 86 L290 115 Q295 119 291 120 Q287 121 280 121 L200 121 Q192 121 187 118Z" fill="url(#frontFold)" opacity=".91"/>
+    <!-- Heart seal -->
+    <g transform="translate(226.5 65.5) scale(.72)" filter="url(#sealShadow)">
+      <use href="#heart" fill="url(#heartSeal)"/>
+      <path d="M5 6 C7 0 14 -2 18 3" stroke="#FFACCA" stroke-width="2" opacity=".42" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Two small floating hearts precisely above the envelope -->
+  <g transform="translate(244 18) scale(.46)" fill="url(#heartPink)"><use href="#heart"/></g>
+  <g transform="translate(266 1) scale(.47)" fill="url(#heartPink)"><use href="#heart"/></g>
+</svg>

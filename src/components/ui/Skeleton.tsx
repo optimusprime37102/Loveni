@@ -51,10 +51,20 @@ export function Skeleton({
 export function HomeSkeleton() {
   return (
     <View style={{ gap: 16, padding: 20 }}>
-      <Skeleton height={180} radius={24} />
-      <Skeleton height={110} radius={20} />
-      <Skeleton height={110} radius={20} />
-      <Skeleton height={90} radius={20} />
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Skeleton width={140} height={40} radius={20} />
+        <Skeleton width={42} height={42} radius={21} />
+      </View>
+      <Skeleton width="70%" height={34} radius={12} />
+      <Skeleton width="85%" height={18} radius={10} />
+      <Skeleton height={280} radius={28} />
+      <View style={{ flexDirection: 'row', gap: 10 }}>
+        <Skeleton height={120} radius={24} style={{ flex: 1 }} />
+        <Skeleton height={120} radius={24} style={{ flex: 1 }} />
+        <Skeleton height={120} radius={24} style={{ flex: 1 }} />
+      </View>
+      <Skeleton height={104} radius={28} />
+      <Skeleton height={104} radius={28} />
     </View>
   );
 }

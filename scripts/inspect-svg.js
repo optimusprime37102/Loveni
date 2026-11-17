@@ -1,0 +1,12 @@
+const fs = require('fs');
+const c = fs.readFileSync('assets/images/loveni_top_card_bg.svg', 'utf8');
+console.log(c.slice(0, 500));
+console.log('---');
+console.log('len', c.length);
+console.log('base64', c.includes('base64'));
+console.log('image', /<image/i.test(c));
+console.log('viewBox', (c.match(/viewBox="([^"]+)"/) || [])[1]);
+console.log('width', (c.match(/\swidth="([^"]+)"/) || [])[1]);
+console.log('height', (c.match(/\sheight="([^"]+)"/) || [])[1]);
+const mime = (c.match(/data:([^;]+);base64/) || [])[1];
+console.log('mime', mime);

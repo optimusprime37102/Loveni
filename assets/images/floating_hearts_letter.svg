@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" role="img" aria-label="Blush pink romantic envelope with a heart seal and three floating pink hearts">
+  <title>Loveni — Floating Hearts Love Letter</title>
+  <desc>Fully editable vector illustration with a pink envelope, softly shaded folded flaps, glossy heart-shaped seal, three floating hearts and a transparent background.</desc>
+  <defs>
+    <linearGradient id="shell" x1="155" y1="455" x2="1015" y2="1090" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE0E6"/><stop offset=".34" stop-color="#FFB6C8"/><stop offset=".72" stop-color="#FEB2C6"/><stop offset="1" stop-color="#F7A4BD"/>
+    </linearGradient>
+    <linearGradient id="flap" x1="395" y1="430" x2="640" y2="876" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF0F2"/><stop offset=".25" stop-color="#FFE5EA"/><stop offset=".72" stop-color="#FFD3DF"/><stop offset="1" stop-color="#FFBDCE"/>
+    </linearGradient>
+    <linearGradient id="left" x1="215" y1="555" x2="515" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFCAD4"/><stop offset=".55" stop-color="#F9B0C4"/><stop offset="1" stop-color="#F9BED0"/>
+    </linearGradient>
+    <linearGradient id="right" x1="1006" y1="556" x2="628" y2="1021" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFA9BF"/><stop offset=".57" stop-color="#FFCDDA"/><stop offset="1" stop-color="#FFBACD"/>
+    </linearGradient>
+    <linearGradient id="front" x1="565" y1="800" x2="578" y2="1117" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD5E0"/><stop offset=".58" stop-color="#FFC2D2"/><stop offset="1" stop-color="#F9A5BD"/>
+    </linearGradient>
+    <linearGradient id="heartStrong" x1="20" y1="0" x2="176" y2="189" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9CB3"/><stop offset=".33" stop-color="#FF6B92"/><stop offset=".72" stop-color="#FA467A"/><stop offset="1" stop-color="#E92D67"/>
+    </linearGradient>
+    <linearGradient id="heartSmall" x1="38" y1="12" x2="157" y2="177" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9BB3"/><stop offset=".38" stop-color="#FF668D"/><stop offset="1" stop-color="#EF3F75"/>
+    </linearGradient>
+    <linearGradient id="heartPale" x1="38" y1="9" x2="152" y2="174" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFDDE5"/><stop offset=".45" stop-color="#FFC5D4"/><stop offset="1" stop-color="#FFA4BF"/>
+    </linearGradient>
+    <linearGradient id="heartSeal" x1="22" y1="-8" x2="155" y2="185" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9FB6"/><stop offset=".28" stop-color="#FF6991"/><stop offset=".65" stop-color="#F74B7D"/><stop offset="1" stop-color="#DF2861"/>
+    </linearGradient>
+    <radialGradient id="ground" cx="0" cy="0" r="1" gradientTransform="translate(608 1115) rotate(90) scale(70 520)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#CE5476" stop-opacity=".40"/><stop offset=".47" stop-color="#D56488" stop-opacity=".19"/><stop offset="1" stop-color="#EA8AA5" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="envShadow" x="75" y="413" width="1042" height="751" filterUnits="userSpaceOnUse">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="15" result="b"/>
+      <feOffset in="b" dy="15" result="o"/>
+      <feComponentTransfer in="o" result="s"><feFuncA type="linear" slope=".23"/></feComponentTransfer>
+      <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="flapShadow" x="120" y="425" width="1020" height="500" filterUnits="userSpaceOnUse">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+      <feOffset in="b" dy="7" result="o"/>
+      <feComponentTransfer in="o" result="s"><feFuncA type="linear" slope=".15"/></feComponentTransfer>
+      <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="heartShadow" x="-30%" y="-25%" width="160%" height="170%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+      <feOffset in="blur" dy="8" result="offset"/>
+      <feComponentTransfer in="offset" result="dim"><feFuncA type="linear" slope=".26"/></feComponentTransfer>
+      <feMerge><feMergeNode in="dim"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="envClip"><path d="M268 451 C211 446 175 469 163 525 L122 990 C117 1037 151 1064 201 1069 L962 1097 C1007 1099 1043 1069 1049 1019 L1080 586 C1086 529 1057 490 1006 486 Z"/></clipPath>
+    <path id="heart" d="M100 181 C76 163 18 122 7 76 C-6 24 47 -10 85 28 C92 35 98 42 100 46 C104 39 109 32 116 27 C153 -10 205 23 193 76 C183 120 124 165 100 181 Z"/>
+  </defs>
+
+  <!-- Separate blurred ellipse: transparent outside the artwork -->
+  <ellipse cx="603" cy="1115" rx="518" ry="75" fill="url(#ground)"/>
+
+  <!-- Envelope silhouette -->
+  <g filter="url(#envShadow)">
+    <path d="M268 451 C211 446 175 469 163 525 L122 990 C117 1037 151 1064 201 1069 L962 1097 C1007 1099 1043 1069 1049 1019 L1080 586 C1086 529 1057 490 1006 486 Z" fill="url(#shell)"/>
+    <g clip-path="url(#envClip)">
+      <!-- Vertical folded wings and softly shaded seams -->
+      <path d="M158 526 L611 817 L124 1067 L118 976Z" fill="url(#left)"/>
+      <path d="M1083 558 L607 813 L1055 1108 L1107 1020Z" fill="url(#right)"/>
+      <!-- Bottom pocket is a separate editable shape -->
+      <path d="M112 1070 C232 983 456 831 589 742 C607 733 621 742 636 755 L1065 1099 Z" fill="url(#front)"/>
+      <path d="M138 1039 L584 754" stroke="#FFECF0" stroke-width="4" stroke-opacity=".42"/>
+      <path d="M639 761 L1040 1081" stroke="#F991B0" stroke-width="3" stroke-opacity=".18"/>
+      <!-- Upper flap: smooth pointed V with rounded curved top edges -->
+      <g filter="url(#flapShadow)">
+        <path d="M265 447 C213 444 178 466 173 508 C167 534 183 550 210 576 L558 824 C581 844 609 852 632 834 L1044 599 C1082 577 1104 544 1072 511 C1058 497 1035 491 1004 488 Z" fill="url(#flap)"/>
+        <path d="M176 512 C181 474 216 449 267 453 L1006 494 C1053 498 1079 519 1073 545" stroke="#FFF7F8" stroke-width="6" stroke-linecap="round" stroke-opacity=".48"/>
+        <path d="M215 580 L560 826 Q599 857 634 836 L1040 604" stroke="#F58CAA" stroke-width="3" stroke-opacity=".13"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Center glossy heart seal, not a raster image -->
+  <g transform="translate(449 645) scale(1.53 1.5)" filter="url(#heartShadow)">
+    <use href="#heart" fill="url(#heartSeal)"/>
+    <use href="#heart" stroke="#F65383" stroke-width="1.5" stroke-opacity=".34"/>
+    <path d="M26 66 C36 28 61 23 81 31" stroke="#FFDBE5" stroke-width="10" stroke-linecap="round" stroke-opacity=".68"/>
+    <path d="M138 17 C164 19 177 40 180 58" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-opacity=".13"/>
+  </g>
+
+  <!-- Floating hearts: large, small and pale -->
+  <g transform="translate(699 100) scale(1.14 1.13)" filter="url(#heartShadow)">
+    <use href="#heart" fill="url(#heartStrong)"/>
+    <use href="#heart" stroke="#E94D80" stroke-width="1.3" stroke-opacity=".37"/>
+    <path d="M28 61 C36 29 57 24 76 32" stroke="#FFE4EB" stroke-width="9" stroke-linecap="round" opacity=".72"/>
+  </g>
+  <g transform="translate(552 265) scale(.82 .82)" filter="url(#heartShadow)">
+    <use href="#heart" fill="url(#heartSmall)"/>
+    <path d="M28 62 C36 34 55 30 74 36" stroke="#FFDDE7" stroke-width="10" stroke-linecap="round" opacity=".73"/>
+  </g>
+  <g transform="translate(832 294) scale(.82 .78)" opacity=".97">
+    <use href="#heart" fill="url(#heartPale)"/>
+    <path d="M29 59 C36 35 56 31 72 36" stroke="#FFF0F3" stroke-width="9" stroke-linecap="round" opacity=".60"/>
+  </g>
+</svg>

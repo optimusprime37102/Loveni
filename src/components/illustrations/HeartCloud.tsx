@@ -1,0 +1,92 @@
+import Svg, {
+  Defs,
+  G,
+  LinearGradient,
+  Path,
+  RadialGradient,
+  Stop,
+  SvgProps,
+} from 'react-native-svg';
+
+export function HeartCloud({ width = 108, height = 64, ...props }: SvgProps) {
+  return (
+    <Svg
+      width={width}
+      height={height}
+      viewBox="0 0 420 250"
+      fill="none"
+      accessibilityLabel="Soft pink cloud with a heart"
+      {...props}
+    >
+      <Defs>
+        <LinearGradient id="cloudPink" x1="212" y1="71" x2="210" y2="224" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#FFC5D9" />
+          <Stop offset="0.54" stopColor="#FFD6E3" />
+          <Stop offset="1" stopColor="#FFE5EE" stopOpacity="0.76" />
+        </LinearGradient>
+        <RadialGradient
+          id="cloudGlow"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientTransform="translate(206 125) rotate(90) scale(110 165)"
+          gradientUnits="userSpaceOnUse"
+        >
+          <Stop stopColor="#FFC5D7" stopOpacity="0.56" />
+          <Stop offset="1" stopColor="#FFCBDC" stopOpacity="0" />
+        </RadialGradient>
+        <LinearGradient id="heartPink" x1="208" y1="116" x2="208" y2="184" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#FF9CB9" />
+          <Stop offset="0.65" stopColor="#FC83A8" />
+          <Stop offset="1" stopColor="#F47B9D" />
+        </LinearGradient>
+        <LinearGradient id="sparkPink" x1="207" y1="24" x2="207" y2="83" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#FF729A" />
+          <Stop offset="1" stopColor="#FD95B2" />
+        </LinearGradient>
+      </Defs>
+
+      <Path
+        d="M60 222C32 222 19 204 19 183C19 159 38 140 62 140C69 140 76 141 82 144C82 106 111 76 149 76C175 76 195 88 206 109C217 92 238 85 259 89C293 95 309 121 307 145C318 139 327 138 338 140C364 144 384 163 384 187C384 208 365 222 342 222H60Z"
+        fill="#F8A6C2"
+        opacity={0.24}
+      />
+      <Path
+        d="M60 217C37 217 23 201 23 181C23 159 40 143 61 143C71 143 80 146 88 152C86 145 85 138 85 130C85 98 112 75 146 75C173 75 195 89 205 108C217 92 235 88 256 88C288 88 311 110 311 140C311 143 311 146 310 149C321 143 331 143 340 145C363 149 380 167 380 186C380 205 365 217 343 217H60Z"
+        fill="url(#cloudPink)"
+      />
+      <Path
+        d="M60 217C37 217 23 201 23 181C23 159 40 143 61 143C71 143 80 146 88 152C86 145 85 138 85 130C85 98 112 75 146 75C173 75 195 89 205 108C217 92 235 88 256 88C288 88 311 110 311 140C311 143 311 146 310 149C321 143 331 143 340 145C363 149 380 167 380 186C380 205 365 217 343 217H60Z"
+        fill="url(#cloudGlow)"
+      />
+      <Path
+        d="M104 133C103 104 123 88 146 88C165 88 183 98 192 116"
+        stroke="#FFF6F8"
+        strokeOpacity={0.22}
+        strokeWidth={5}
+        strokeLinecap="round"
+      />
+      <Path
+        d="M206 186C197 177 170 162 168 143C165 124 179 114 191 116C199 117 205 122 209 130C213 122 220 116 231 116C247 116 257 129 252 146C248 162 223 178 209 188C208 188 207 187 206 186Z"
+        fill="#F277A0"
+        fillOpacity={0.2}
+      />
+      <Path
+        d="M208 185C198 178 173 160 171 143C169 129 178 118 191 118C200 118 206 123 210 132C215 122 222 118 232 118C246 118 255 129 252 142C248 161 222 178 210 186C209 186 209 186 208 185Z"
+        fill="url(#heartPink)"
+      />
+      <Path
+        d="M184 130C187 126 192 125 197 128"
+        stroke="#FFDBE6"
+        strokeOpacity={0.55}
+        strokeWidth={3.5}
+        strokeLinecap="round"
+      />
+      <G stroke="url(#sparkPink)" strokeWidth={7} strokeLinecap="round">
+        <Path d="M177 62L164 47" />
+        <Path d="M210 54V28" />
+        <Path d="M243 62L256 47" />
+      </G>
+    </Svg>
+  );
+}

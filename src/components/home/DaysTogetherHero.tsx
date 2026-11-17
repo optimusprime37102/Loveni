@@ -2,177 +2,77 @@ import { Avatar } from '@/src/components/ui/Avatar';
 import { Text } from '@/src/components/ui/Text';
 import { useTheme } from '@/src/contexts/ThemeContext';
 import { useDaysTogether } from '@/src/hooks/useDaysTogether';
+import { useHaptics } from '@/src/hooks/useHaptics';
 import { palette } from '@/src/theme/colors';
 import { radii, spacing } from '@/src/theme/spacing';
+import { fonts } from '@/src/theme/typography';
 import { UserProfile } from '@/src/types/models';
-import { LinearGradient } from 'expo-linear-gradient';
+import { format, parseISO, isValid } from 'date-fns';
+import { router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
-  Easing,
-  Extrapolation,
-  cancelAnimation,
-  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
-  withSequence,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 
 interface Props {
   me: UserProfile;
-  partner: UserProfile | null;
+  partner: UserProfile;
   startDate: string | null;
 }
 
-const AVATAR_SIZE = 64;
+const AVATAR_SIZE = 72;
+const cardBg = require('../../../assets/images/loveni_top_card_bg.png');
 
-const MOTIFS = [
-  { emoji: '🌹', top: 16, left: 12, size: 20, rotate: '-16deg', opacity: 0.55 },
-  { emoji: '💕', top: 18, right: 14, size: 18, rotate: '12deg', opacity: 0.5 },
-  { emoji: '🌸', top: 72, left: 8, size: 16, rotate: '18deg', opacity: 0.42 },
-  { emoji: '💗', top: 68, right: 10, size: 15, rotate: '-10deg', opacity: 0.38 },
-  { emoji: '❀', bottom: 78, left: 16, size: 14, rotate: '8deg', opacity: 0.35 },
-  { emoji: '💞', bottom: 25, left: 16, size: 14, rotate: '8deg', opacity: 0.35 },
-  { emoji: '🌺', bottom: 72, right: 18, size: 15, rotate: '-14deg', opacity: 0.4 },
-  { emoji: '💑🏻', bottom: 18, right: 14, size: 18, rotate: '12deg', opacity: 0.5 },
-
-  
-] as const;
-
-const FLOATING_HEARTS = [
-  { left: '8%', delay: 0, size: 14, duration: 5200, drift: 8, outline: false },
-  { left: '22%', delay: 700, size: 11, duration: 5800, drift: -7, outline: true },
-  { left: '38%', delay: 300, size: 13, duration: 5000, drift: 10, outline: false },
-  { left: '54%', delay: 1100, size: 10, duration: 6400, drift: -8, outline: true },
-  { left: '68%', delay: 500, size: 15, duration: 5600, drift: 6, outline: false },
-  { left: '82%', delay: 1400, size: 12, duration: 6000, drift: -9, outline: true },
-  { left: '14%', delay: 1900, size: 9, duration: 4800, drift: 7, outline: false },
-  { left: '76%', delay: 2300, size: 11, duration: 5400, drift: -5, outline: false },
-] as const;
-
-function FloatingHeart({
-  left,
-  delay,
-  size,
-  duration,
-  drift,
-  outline,
-}: {
-  left: `${number}%`;
-  delay: number;
-  size: number;
-  duration: number;
-  drift: number;
-  outline: boolean;
-}) {
-  const progress = useSharedValue(0);
-
-  useEffect(() => {
-    progress.value = 0;
-    progress.value = withDelay(
-      delay,
-      withRepeat(
-        withSequence(
-          withTiming(1, { duration, easing: Easing.linear }),
-          withTiming(0, { duration: 1 })
-        ),
-        -1,
-        false
-      )
-    );
-
-    return () => {
-      cancelAnimation(progress);
-    };
-  }, [delay, duration, progress]);
-
-  const style = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      progress.value,
-      [0, 0.12, 0.65, 1],
-      [0, outline ? 0.32 : 0.42, outline ? 0.24 : 0.34, 0],
-      Extrapolation.CLAMP
-    ),
-    transform: [
-      {
-        translateY: interpolate(progress.value, [0, 1], [0, -220], Extrapolation.CLAMP),
-      },
-      {
-        translateX: interpolate(
-          progress.value,
-          [0, 0.5, 1],
-          [0, drift, drift * 0.3],
-          Extrapolation.CLAMP
-        ),
-      },
-      {
-        scale: interpolate(progress.value, [0, 0.35, 1], [0.7, 1, 0.88], Extrapolation.CLAMP),
-      },
-    ],
-  }));
-
-  return (
-    <Animated.Text
-      style={[
-        styles.floatHeart,
-        {
-          left,
-          fontSize: size,
-          color: outline ? 'rgba(244, 91, 140, 0.42)' : palette.softRose,
-        },
-        style,
-      ]}
-    >
-      {outline ? '♡' : '♥'}
-    </Animated.Text>
-  );
+function formatSinceDate(startDate: string | null) {
+  if (!startDate) return null;
+  const date = parseISO(startDate);
+  if (!isValid(date)) return null;
+  return format(date, 'MMM dd, yyyy');
 }
 
 export function DaysTogetherHero({ me, partner, startDate }: Props) {
-  const { theme, isDark } = useTheme();
-  const { days, anniversary, hasStartDate } = useDaysTogether(startDate);
-  const connected = Boolean(partner);
+  const { colors, theme, isDark } = useTheme();
+  const haptics = useHaptics();
+  const { days, hasStartDate } = useDaysTogether(startDate);
+  const sinceLabel = formatSinceDate(startDate);
   const scale = useSharedValue(0.96);
   const opacity = useSharedValue(0);
 
+  const openStartDate = () => {
+    haptics.selection();
+    router.push('/relationship/edit');
+  };
+
   const love = isDark
     ? {
-        gradient: ['#3A1C2A', '#2A1520', '#1F1218'] as const,
-        border: 'rgba(255, 122, 168, 0.28)',
-        label: '#FF9EC0',
-        text: '#FBF5F8',
-        muted: '#B5A8B8',
-        line: 'rgba(255, 158, 192, 0.6)',
+        line: 'rgba(255, 158, 192, 0.55)',
         connectorBg: '#3A1C2A',
         connectorBorder: 'rgba(255, 158, 192, 0.45)',
         connectorIcon: '#FF9EC0',
-        chipBg: 'rgba(255, 122, 168, 0.18)',
+        chipBg: 'rgba(255, 255, 255, 0.12)',
+        chipBorder: 'rgba(255, 158, 192, 0.28)',
         chipText: '#FFD0DE',
-        placeholderBorder: 'rgba(255, 158, 192, 0.4)',
-        placeholderBg: 'rgba(255, 255, 255, 0.05)',
-        motifBoost: 0.85,
+        counter: '#FFD0DE',
+        label: '#FF9EC0',
+        journey: '#FFB0C8',
       }
     : {
-        gradient: ['#FFF5F8', '#FFE8EF', '#F8D6E4'] as const,
-        border: 'rgba(244, 91, 140, 0.22)',
-        label: palette.rose,
-        text: palette.berry,
-        muted: palette.mauve,
-        line: 'rgba(130, 22, 63, 0.32)',
+        line: 'rgba(101, 12, 52, 0.28)',
         connectorBg: palette.white,
-        connectorBorder: 'rgba(244, 91, 140, 0.35)',
+        connectorBorder: 'rgba(242, 95, 130, 0.35)',
         connectorIcon: palette.rose,
-        chipBg: 'rgba(255, 255, 255, 0.82)',
-        chipText: palette.berry,
-        placeholderBorder: 'rgba(154, 122, 136, 0.4)',
-        placeholderBg: 'rgba(255, 255, 255, 0.75)',
-        motifBoost: 1,
+        chipBg: 'rgba(255, 255, 255, 0.72)',
+        chipBorder: 'rgba(242, 95, 130, 0.22)',
+        chipText: colors.textHeading,
+        counter: colors.textHeading,
+        label: colors.textHeading,
+        journey: '#8B1E45',
       };
 
   useEffect(() => {
@@ -187,64 +87,18 @@ export function DaysTogetherHero({ me, partner, startDate }: Props) {
 
   return (
     <Animated.View style={[theme.shadows.soft, anim]}>
-      <LinearGradient
-        colors={love.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.hero, { borderColor: love.border }]}
-      >
-        <LinearGradient
-          colors={[palette.rose, palette.coral]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={styles.accentBar}
-        />
-
-        {connected ? (
-          <View pointerEvents="none" style={styles.floatLayer}>
-            {FLOATING_HEARTS.map((heart) => (
-              <FloatingHeart
-                key={`${heart.left}-${heart.delay}`}
-                left={heart.left}
-                delay={heart.delay}
-                size={heart.size}
-                duration={heart.duration}
-                drift={heart.drift}
-                outline={heart.outline}
-              />
-            ))}
-          </View>
-        ) : null}
-
-        {MOTIFS.map((motif, index) => (
-          <Text
-            key={`${motif.emoji}-${index}`}
-            pointerEvents="none"
-            style={[
-              styles.motif,
-              {
-                top: 'top' in motif ? motif.top : undefined,
-                left: 'left' in motif ? motif.left : undefined,
-                right: 'right' in motif ? motif.right : undefined,
-                bottom: 'bottom' in motif ? motif.bottom : undefined,
-                fontSize: motif.size,
-                opacity: motif.opacity * love.motifBoost,
-                transform: [{ rotate: motif.rotate }],
-              },
-            ]}
-          >
-            {motif.emoji}
-          </Text>
-        ))}
+      <View style={styles.card}>
+        <Image source={cardBg} style={styles.background} resizeMode="stretch" />
+        {isDark ? <View style={styles.darkScrim} /> : null}
 
         <View style={styles.content}>
           <View style={styles.avatars}>
             <Avatar avatarId={me.avatarId} size={AVATAR_SIZE} ring />
 
             <View style={styles.link}>
-              <Svg width={118} height={44} viewBox="0 0 118 44" style={styles.linkSvg}>
+              <Svg width={108} height={40} viewBox="0 0 108 40" style={styles.linkSvg}>
                 <Path
-                  d="M 0 22 Q 59 6 118 22"
+                  d="M 0 20 Q 54 4 108 20"
                   stroke={love.line}
                   strokeWidth={1.75}
                   strokeDasharray="1.5 5"
@@ -262,191 +116,189 @@ export function DaysTogetherHero({ me, partner, startDate }: Props) {
                   },
                 ]}
               >
-                {connected ? (
-                  <SymbolView
-                    name={{ ios: 'heart.fill', android: 'favorite', web: 'favorite' }}
-                    size={15}
-                    tintColor={love.connectorIcon}
-                    weight="semibold"
-                    fallback={<Text style={styles.connectorFallback}>♥</Text>}
-                  />
-                ) : (
-                  <SymbolView
-                    name={{ ios: 'lock.fill', android: 'lock', web: 'lock' }}
-                    size={14}
-                    tintColor={love.connectorIcon}
-                    weight="semibold"
-                    fallback={
-                      <Text style={[styles.connectorFallback, { color: love.connectorIcon }]}>
-                        🔒
-                      </Text>
-                    }
-                  />
-                )}
+                <SymbolView
+                  name={{ ios: 'heart.fill', android: 'favorite', web: 'favorite' }}
+                  size={14}
+                  tintColor={love.connectorIcon}
+                  weight="semibold"
+                  fallback={<Text style={styles.connectorFallback}>♥</Text>}
+                />
               </View>
             </View>
 
-            {partner ? (
-              <Avatar avatarId={partner.avatarId} size={AVATAR_SIZE} ring />
-            ) : (
-              <View
-                style={[
-                  styles.placeholder,
-                  {
-                    borderColor: love.placeholderBorder,
-                    backgroundColor: love.placeholderBg,
-                  },
-                ]}
-              >
-                <Text style={{ color: love.muted, fontSize: 20 }}>?</Text>
-              </View>
-            )}
+            <Avatar avatarId={partner.avatarId} size={AVATAR_SIZE} ring />
           </View>
 
-          <View style={styles.labelRow}>
-            <Text style={[styles.labelHeart, { color: love.label }]}>♥</Text>
-            <Text variant="label" color={love.label} center>
-              Days together
+          <View style={styles.journeyRow}>
+            <Text color={love.journey} style={styles.journeyHeart}>
+              ♡
             </Text>
-            <Text style={[styles.labelHeart, { color: love.label }]}>♥</Text>
+            <Text color={love.journey} style={styles.journeyTitle}>
+              OUR JOURNEY TOGETHER
+            </Text>
+            <Text color={love.journey} style={styles.journeyHeart}>
+              ♡
+            </Text>
           </View>
 
-          <Text variant="counter" color={love.text} center style={styles.counter}>
-            {hasStartDate ? days : '—'}
+          <Text color={love.counter} center style={styles.counter}>
+            {hasStartDate ? days : 0}
           </Text>
 
-          <Text center style={{ color: love.muted }}>
-            {partner
-              ? `${me.displayName.split(' ')[0]} & ${partner.displayName.split(' ')[0]}`
-              : 'Waiting for your person'}
-          </Text>
+          <View style={styles.daysRow}>
+            <Text color={love.label} style={styles.daysLabel}>
+              Days Together
+            </Text>
+            <Text color={love.label} style={styles.daysHeart}>
+              ♡
+            </Text>
+          </View>
 
-          {anniversary ? (
-            <View style={[styles.chip, { backgroundColor: love.chipBg }]}>
-              <Text variant="caption" color={love.chipText}>
-                {anniversary.daysUntil === 0
-                  ? `Happy ${anniversary.years}${getOrdinal(anniversary.years)} anniversary`
-                  : `${anniversary.daysUntil} day${anniversary.daysUntil === 1 ? '' : 's'} until anniversary`}
-              </Text>
-            </View>
-          ) : (
-            <View style={[styles.chip, { backgroundColor: love.chipBg }]}>
-              <Text variant="caption" color={love.chipText}>
-                {connected
-                  ? '❀  Set your start date to unlock the countdown'
-                  : '♡  Connect to unlock your shared days'}
-              </Text>
-            </View>
-          )}
+          <Pressable
+            onPress={openStartDate}
+            accessibilityRole="button"
+            accessibilityLabel={sinceLabel ? 'Edit start date' : 'Set your start date'}
+            style={({ pressed }) => [
+              styles.chip,
+              {
+                backgroundColor: love.chipBg,
+                borderColor: love.chipBorder,
+                opacity: pressed ? 0.88 : 1,
+              },
+            ]}
+          >
+            <SymbolView
+              name={{ ios: 'calendar', android: 'calendar_month', web: 'calendar_month' }}
+              size={14}
+              tintColor={love.chipText}
+              weight="medium"
+              fallback={<Text style={{ color: love.chipText, fontSize: 12 }}>📅</Text>}
+            />
+            <Text color={love.chipText} style={styles.chipText}>
+              {sinceLabel ? `Since ${sinceLabel}` : 'Set your start date'}
+            </Text>
+          </Pressable>
         </View>
-      </LinearGradient>
+      </View>
     </Animated.View>
   );
 }
 
-function getOrdinal(n: number) {
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return s[(v - 20) % 10] || s[v] || s[0];
-}
-
 const styles = StyleSheet.create({
-  hero: {
-    borderRadius: radii.xl,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xl,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-    gap: spacing.xs,
-    borderWidth: 1,
+  card: {
+    borderRadius: 37,
+    borderWidth: 0,
     overflow: 'hidden',
+    backgroundColor: '#FBE4EF',
   },
-  accentBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-  },
-  floatLayer: {
+  background: {
     position: 'absolute',
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
-    zIndex: 0,
+    width: '100%',
+    height: '100%',
   },
-  floatHeart: {
-    position: 'absolute',
-    bottom: -8,
-  },
-  motif: {
-    position: 'absolute',
-    zIndex: 1,
+  darkScrim: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(26, 18, 32, 0.55)',
   },
   content: {
-    zIndex: 2,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
     alignItems: 'center',
     width: '100%',
-    gap: spacing.xs,
   },
   avatars: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
   },
   link: {
-    width: 118,
-    height: 72,
+    width: 108,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: -8,
+    marginHorizontal: -6,
   },
   linkSvg: {
     position: 'absolute',
-    top: 14,
+    top: 12,
   },
   connector: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 3,
     borderWidth: 1.5,
-    marginTop: -12,
+    marginTop: -10,
   },
   connectorFallback: {
-    fontSize: 13,
+    fontSize: 12,
     lineHeight: 16,
     color: palette.rose,
   },
-  placeholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  labelRow: {
+  journeyRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
+    marginBottom: 2,
   },
-  labelHeart: {
+  journeyHeart: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  journeyTitle: {
+    fontFamily: fonts.bodyBold,
     fontSize: 11,
-    opacity: 0.9,
+    lineHeight: 14,
+    letterSpacing: 1.4,
   },
   counter: {
-    marginVertical: 2,
+    fontFamily: fonts.displayBold,
+    fontSize: 56,
+    lineHeight: 62,
+    letterSpacing: -1.2,
+    marginTop: 2,
+  },
+  daysRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 2,
+  },
+  daysLabel: {
+    fontFamily: fonts.bodyBold,
+    fontSize: 16,
+    lineHeight: 22,
+    letterSpacing: -0.2,
+  },
+  daysHeart: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: 14,
+    lineHeight: 18,
+    marginTop: 1,
   },
   chip: {
     marginTop: spacing.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs + 2,
     borderRadius: radii.pill,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  chipText: {
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12,
+    lineHeight: 16,
   },
 });

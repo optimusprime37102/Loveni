@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -24,14 +24,26 @@ import {
 import { setPartnerPromptSkipped } from '@/src/utils/partnerPrompt';
 import { radii, spacing } from '@/src/theme/spacing';
 
+type ConnectMode = 'choose' | 'create' | 'join';
+
+function resolveInitialMode(value: string | string[] | undefined): ConnectMode {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return raw === 'join' || raw === 'create' ? raw : 'choose';
+}
+
 export default function ConnectPartnerScreen() {
   const { user, profile } = useAuth();
   const { colors } = useTheme();
   const haptics = useHaptics();
-  const [mode, setMode] = useState<'choose' | 'create' | 'join'>('choose');
+  const params = useLocalSearchParams<{ mode?: string }>();
+  const [mode, setMode] = useState<ConnectMode>(() => resolveInitialMode(params.mode));
   const [code, setCode] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setMode(resolveInitialMode(params.mode));
+  }, [params.mode]);
 
   const goHome = async (markSkipped: boolean) => {
     if (markSkipped && user) {

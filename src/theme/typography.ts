@@ -7,6 +7,8 @@ export const fonts = {
   body: 'PlusJakartaSans_400Regular',
   bodyMedium: 'PlusJakartaSans_500Medium',
   bodyBold: 'PlusJakartaSans_700Bold',
+  script: 'Caveat_500Medium',
+  scriptBold: 'Caveat_700Bold',
 } as const;
 
 export const typography = {
