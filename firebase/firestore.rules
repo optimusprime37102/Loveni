@@ -169,20 +169,67 @@ service cloud.firestore {
       allow update: if signedIn()
         && resource.data.fromUid == request.auth.uid
         && isCoupleMember(resource.data.coupleId)
-        && request.resource.data.deleted == true;
+        && (
+          // Soft delete
+          (
+            request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['deleted', 'deletedAt'])
+            && request.resource.data.deleted == true
+          )
+          // Edit note text
+          || (
+            resource.data.deleted == false
+            && request.resource.data.deleted == false
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['text', 'updatedAt'])
+            && request.resource.data.text is string
+            && request.resource.data.text.size() > 0
+            && request.resource.data.text.size() <= 500
+          )
+        );
 
       allow delete: if false;
     }
 
     match /moods/{moodId} {
-      allow read: if signedIn() && isCoupleMember(resource.data.coupleId);
+      allow read: if signedIn()
+        && isCoupleMember(resource.data.coupleId)
+        && (!('deleted' in resource.data) || resource.data.deleted == false);
 
       allow create: if signedIn()
         && request.resource.data.uid == request.auth.uid
         && isCoupleMember(request.resource.data.coupleId)
-        && request.resource.data.mood in ['🥰', '😊', '😔', '😴', '🥺', '😍'];
+        && request.resource.data.mood in ['🥰', '😊', '😔', '😴', '🥺', '😍']
+        && (!('deleted' in request.resource.data) || request.resource.data.deleted == false);
 
-      allow update, delete: if false;
+      allow update: if signedIn()
+        && resource.data.uid == request.auth.uid
+        && isCoupleMember(resource.data.coupleId)
+        && (
+          // Soft delete
+          (
+            request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['deleted', 'deletedAt'])
+            && request.resource.data.deleted == true
+          )
+          // Edit mood + optional message
+          || (
+            (!('deleted' in resource.data) || resource.data.deleted == false)
+            && (!('deleted' in request.resource.data) || request.resource.data.deleted == false)
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['mood', 'message', 'updatedAt'])
+            && request.resource.data.mood in ['🥰', '😊', '😔', '😴', '🥺', '😍']
+            && (
+              request.resource.data.message == null
+              || (
+                request.resource.data.message is string
+                && request.resource.data.message.size() <= 160
+              )
+            )
+          )
+        );
+
+      allow delete: if false;
     }
   }
 }

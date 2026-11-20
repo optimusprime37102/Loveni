@@ -107,7 +107,9 @@ function RootNavigator() {
           name="note/create"
           options={{ presentation: 'modal', headerShown: false }}
         />
+        <Stack.Screen name="mood/history" options={{ headerShown: false }} />
         <Stack.Screen name="relationship/edit" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="widgets/add" options={{ presentation: 'modal' }} />
         <Stack.Screen name="partner/manage" />
         <Stack.Screen name="settings" />
       </Stack>

@@ -5,12 +5,15 @@
   "dependencies": {
     "@expo-google-fonts/caveat": "^0.4.2",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
+    "@expo/ui": "~58.0.29",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.2.1",
     "date-fns": "^4.4.0",
     "expo": "~58.0.25",
+    "expo-asset": "~58.0.21",
     "expo-clipboard": "~58.0.4",
     "expo-constants": "~58.0.16",
+    "expo-file-system": "~58.0.14",
     "expo-font": "~58.0.12",
     "expo-haptics": "~58.0.8",
     "expo-linear-gradient": "~58.0.4",
@@ -21,6 +24,7 @@
     "expo-status-bar": "~58.0.5",
     "expo-symbols": "~58.0.5",
     "expo-web-browser": "~58.0.8",
+    "expo-widgets": "~58.0.29",
     "firebase": "^13.3.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -54,7 +58,8 @@
     "prebuild": "expo prebuild --platform android",
     "typecheck": "tsc --noEmit",
     "firebase:rules": "npx -y firebase-tools@latest deploy --only firestore:rules,firestore:indexes",
-    "firebase:functions": "npm --prefix functions run build && npx -y firebase-tools@latest deploy --only functions"
+    "firebase:functions": "npm --prefix functions run build && npx -y firebase-tools@latest deploy --only functions",
+    "lint": "expo lint"
   },
   "private": true
 }

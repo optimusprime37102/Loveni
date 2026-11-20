@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
@@ -9,7 +9,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { useCouple } from '@/src/contexts/CoupleContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
 import { useHaptics } from '@/src/hooks/useHaptics';
-import { sendLoveNote } from '@/src/services/notesService';
+import { sendLoveNote, updateLoveNote } from '@/src/services/notesService';
 import { validateNote } from '@/src/utils/validation';
 import { spacing } from '@/src/theme/spacing';
 
@@ -20,9 +20,18 @@ export default function CreateNoteScreen() {
   const { couple, partner } = useCouple();
   const { colors } = useTheme();
   const haptics = useHaptics();
-  const [text, setText] = useState('');
+  const params = useLocalSearchParams<{ noteId?: string; text?: string }>();
+
+  const noteId = typeof params.noteId === 'string' ? params.noteId : undefined;
+  const initialText = typeof params.text === 'string' ? params.text : '';
+  const isEditing = Boolean(noteId);
+
+  const [text, setText] = useState(initialText);
   const [error, setError] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
+
+  const title = useMemo(() => (isEditing ? 'Edit love note' : 'New love note'), [isEditing]);
+  const cta = useMemo(() => (isEditing ? 'Save note' : 'Send note'), [isEditing]);
 
   const onSend = async () => {
     const noteError = validateNote(text);
@@ -38,17 +47,24 @@ export default function CreateNoteScreen() {
 
     try {
       setLoading(true);
-      await sendLoveNote({
-        coupleId: couple.id,
-        fromUid: profile.uid,
-        toUid: partner.uid,
-        text,
-      });
+      if (isEditing && noteId) {
+        await updateLoveNote(noteId, text);
+      } else {
+        await sendLoveNote({
+          coupleId: couple.id,
+          fromUid: profile.uid,
+          toUid: partner.uid,
+          text,
+        });
+      }
       haptics.success();
       router.back();
     } catch (e: unknown) {
       haptics.error();
-      Alert.alert('Could not send note', (e as Error).message);
+      Alert.alert(
+        isEditing ? 'Could not save note' : 'Could not send note',
+        (e as Error).message
+      );
     } finally {
       setLoading(false);
     }
@@ -60,7 +76,7 @@ export default function CreateNoteScreen() {
         <Pressable onPress={() => router.back()}>
           <Text color={colors.primary}>Close</Text>
         </Pressable>
-        <Text variant="heading">New love note</Text>
+        <Text variant="heading">{title}</Text>
         <View style={{ width: 48 }} />
       </View>
 
@@ -98,7 +114,7 @@ export default function CreateNoteScreen() {
         ))}
       </View>
 
-      <Button title="Send note" onPress={onSend} loading={loading} style={styles.cta} />
+      <Button title={cta} onPress={onSend} loading={loading} style={styles.cta} />
     </Screen>
   );
 }

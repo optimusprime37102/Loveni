@@ -39,7 +39,7 @@ export function LoveNotesBg({ width, height, ...props }: SvgProps & { width: num
       width={width}
       height={height}
       viewBox="0 0 222 430"
-      preserveAspectRatio="xMidYMid slice"
+      preserveAspectRatio="none"
       fill="none"
       accessibilityLabel="Love notes soft pink background"
       {...props}
@@ -87,17 +87,13 @@ export function LoveNotesBg({ width, height, ...props }: SvgProps & { width: num
           <Stop stopColor="#FFAACC" />
           <Stop offset={1} stopColor="#FCD1E1" />
         </LinearGradient>
-        <LinearGradient id="lnbBackWave" x1="111" y1="386" x2="111" y2="430" gradientUnits="userSpaceOnUse">
+        <LinearGradient id="lnbBackWave" x1="111" y1="400" x2="111" y2="430" gradientUnits="userSpaceOnUse">
           <Stop stopColor="#FFE8F0" />
           <Stop offset={1} stopColor="#FFD4E2" />
         </LinearGradient>
-        <LinearGradient id="lnbMidWave" x1="110" y1="394" x2="110" y2="430" gradientUnits="userSpaceOnUse">
-          <Stop stopColor="#FFCFE2" stopOpacity={0.68} />
-          <Stop offset={1} stopColor="#FFA8C8" stopOpacity={0.85} />
-        </LinearGradient>
-        <LinearGradient id="lnbFrontWave" x1="111" y1="404" x2="111" y2="430" gradientUnits="userSpaceOnUse">
-          <Stop stopColor="#FCB7D0" stopOpacity={0.8} />
-          <Stop offset={1} stopColor="#F88CB4" stopOpacity={0.93} />
+        <LinearGradient id="lnbFrontWave" x1="111" y1="412" x2="111" y2="430" gradientUnits="userSpaceOnUse">
+          <Stop stopColor="#FCB7D0" stopOpacity={0.75} />
+          <Stop offset={1} stopColor="#F88CB4" stopOpacity={0.9} />
         </LinearGradient>
         <LinearGradient id="lnbLeaf" x1="0" y1="0" x2="29" y2="65" gradientUnits="userSpaceOnUse">
           <Stop stopColor="#FFB1CE" />
@@ -148,30 +144,20 @@ export function LoveNotesBg({ width, height, ...props }: SvgProps & { width: num
       </G>
 
       <Path
-        d="M0 406 C20 388 39 388 60 399 C89 415 103 421 123 418 C156 415 181 391 205 395 C212 395 218 399 222 404 L222 430 L0 430Z"
+        d="M0 412 C22 396 42 396 64 406 C92 420 108 424 130 422 C160 418 184 400 206 404 C212 405 218 408 222 412 L222 430 L0 430Z"
         fill="url(#lnbBackWave)"
-        opacity={0.96}
+        opacity={0.9}
       />
       <Path
-        d="M0 414 C29 400 41 406 65 417 C90 428 117 430 144 419 C170 408 196 401 222 407 L222 430 L0 430Z"
-        fill="url(#lnbMidWave)"
-        opacity={0.7}
-      />
-      <Path
-        d="M0 420 C26 409 40 415 64 423 C93 435 118 434 147 425 C178 415 202 409 222 415 L222 430 L0 430Z"
+        d="M0 420 C28 408 44 414 68 422 C96 432 122 432 148 422 C174 412 198 406 222 412 L222 430 L0 430Z"
         fill="url(#lnbFrontWave)"
-        opacity={0.8}
-      />
-      <Path
-        d="M0 427 C29 419 48 425 79 428 C110 432 142 430 168 426 C191 422 208 422 222 423 L222 430 L0 430Z"
-        fill="#FFD9E7"
-        opacity={0.6}
+        opacity={0.78}
       />
 
-      <G transform="translate(10 389) scale(0.6)">
+      <G transform="translate(10 382) scale(0.55)">
         <BotanicalSprig />
       </G>
-      <G transform="translate(212 389) scale(-0.6 0.6)">
+      <G transform="translate(212 382) scale(-0.55 0.55)">
         <BotanicalSprig />
       </G>
     </Svg>

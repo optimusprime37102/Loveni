@@ -18,6 +18,7 @@ interface Props {
   partner: UserProfile | null;
   locked?: boolean;
   onPress: () => void;
+  onViewHistory?: () => void;
 }
 
 function isToday(timestamp?: number | null) {
@@ -47,7 +48,7 @@ function DualHeartsIcon({ size = 18, color = '#F25F82' }: { size?: number; color
   );
 }
 
-export function MoodPreviewCard({ me, partner, locked, onPress }: Props) {
+export function MoodPreviewCard({ me, partner, locked, onPress, onViewHistory }: Props) {
   const { colors, isDark } = useTheme();
   const haptics = useHaptics();
 
@@ -71,25 +72,37 @@ export function MoodPreviewCard({ me, partner, locked, onPress }: Props) {
   const divider = isDark ? 'rgba(255, 158, 192, 0.18)' : '#F5D5DF';
 
   return (
-    <Pressable
-      onPress={() => {
-        haptics.selection();
-        onPress();
-      }}
-    >
-      <Card style={styles.card}>
-        <View style={styles.header}>
-          <View style={styles.titleRow}>
-            <DualHeartsIcon size={18} color={colors.primary} />
-            <Text color={colors.textHeading} style={styles.title} numberOfLines={1}>
-              Today's Moods
-            </Text>
-          </View>
+    <Card style={styles.card}>
+      <View style={styles.header}>
+        <View style={styles.titleRow}>
+          <DualHeartsIcon size={18} color={colors.primary} />
+          <Text color={colors.textHeading} style={styles.title} numberOfLines={1}>
+            Today's Moods
+          </Text>
+        </View>
+        <Pressable
+          onPress={() => {
+            haptics.selection();
+            (onViewHistory ?? onPress)();
+          }}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="View mood history"
+        >
           <Text color={colors.primary} style={styles.link}>
             View History  ›
           </Text>
-        </View>
+        </Pressable>
+      </View>
 
+      <Pressable
+        onPress={() => {
+          haptics.selection();
+          onPress();
+        }}
+        accessibilityRole="button"
+        accessibilityLabel="Share today's mood"
+      >
         <View style={styles.row}>
           <MoodPill
             avatarId={me.avatarId}
@@ -111,8 +124,8 @@ export function MoodPreviewCard({ me, partner, locked, onPress }: Props) {
             mutedColor={colors.textSecondary}
           />
         </View>
-      </Card>
-    </Pressable>
+      </Pressable>
+    </Card>
   );
 }
 

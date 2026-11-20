@@ -63,6 +63,7 @@ export interface MoodEntry {
   mood: MoodEmoji;
   message: string | null;
   createdAt: number;
+  deleted?: boolean;
 }
 
 export interface AuthFormErrors {

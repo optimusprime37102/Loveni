@@ -40,7 +40,73 @@
       ],
       "expo-font",
       "expo-secure-store",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-asset",
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "com.loveni.app.widgets",
+          "groupIdentifier": "group.com.loveni.app",
+          "enableAndroid": true,
+          "widgets": [
+            {
+              "name": "DaysTogetherWidget",
+              "displayName": "Days Together",
+              "description": "See how many days you have been together and your anniversary.",
+              "ios": {
+                "contentMarginsDisabled": true,
+                "supportedFamilies": ["systemMedium"],
+                "initialLayout": "./src/widgets/DaysTogetherWidget.ios.tsx"
+              },
+              "android": {
+                "targetCellWidth": 4,
+                "targetCellHeight": 2,
+                "minWidth": 250,
+                "minHeight": 110,
+                "resizeMode": "horizontal",
+                "initialLayout": "./src/widgets/DaysTogetherWidget.android.tsx"
+              }
+            },
+            {
+              "name": "MoodTodayWidget",
+              "displayName": "Partner Mood",
+              "description": "See your partner's mood at a glance.",
+              "ios": {
+                "contentMarginsDisabled": true,
+                "supportedFamilies": ["systemMedium"],
+                "initialLayout": "./src/widgets/MoodTodayWidget.ios.tsx"
+              },
+              "android": {
+                "targetCellWidth": 4,
+                "targetCellHeight": 1,
+                "minWidth": 250,
+                "minHeight": 40,
+                "resizeMode": "horizontal",
+                "initialLayout": "./src/widgets/MoodTodayWidget.android.tsx"
+              }
+            },
+            {
+              "name": "LoveNoteWidget",
+              "displayName": "Today's Note",
+              "description": "A peek at your latest love note.",
+              "ios": {
+                "contentMarginsDisabled": true,
+                "supportedFamilies": ["systemMedium"],
+                "initialLayout": "./src/widgets/LoveNoteWidget.ios.tsx"
+              },
+              "android": {
+                "targetCellWidth": 4,
+                "targetCellHeight": 1,
+                "minWidth": 250,
+                "minHeight": 40,
+                "resizeMode": "horizontal",
+                "initialLayout": "./src/widgets/LoveNoteWidget.android.tsx"
+              }
+            }
+          ]
+        }
+      ],
+      "./plugins/withLoveniWidgetPreviews.js"
     ],
     "experiments": {
       "typedRoutes": true

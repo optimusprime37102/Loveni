@@ -4,40 +4,51 @@ import { useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
-  Pressable,
+  LayoutChangeEvent,
   StyleSheet,
-  useWindowDimensions,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LoveNotesBg } from '@/src/components/illustrations/LoveNotesBg';
+import { LoveNoteCard } from '@/src/components/notes/LoveNoteCard';
+import { NotesCoupleBanner } from '@/src/components/notes/NotesCoupleBanner';
 import { NotesEmptyCard } from '@/src/components/notes/NotesEmptyCard';
 import { NotesHeader } from '@/src/components/notes/NotesHeader';
 import { Screen } from '@/src/components/ui/Screen';
 import { Skeleton } from '@/src/components/ui/Skeleton';
-import { Text } from '@/src/components/ui/Text';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useCouple } from '@/src/contexts/CoupleContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { deleteLoveNote, subscribeLoveNotes } from '@/src/services/notesService';
 import { LoveNote } from '@/src/types/models';
-import { formatNoteTime } from '@/src/utils/dates';
-import { fonts } from '@/src/theme/typography';
-import { radii, spacing } from '@/src/theme/spacing';
+import { formatLoveNoteTime } from '@/src/utils/dates';
+import { spacing } from '@/src/theme/spacing';
 
 export default function NotesScreen() {
   const { profile } = useAuth();
   const { couple, partner } = useCouple();
-  const { colors, theme, isDark } = useTheme();
+  const { colors, isDark } = useTheme();
   const haptics = useHaptics();
-  const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
   const [notes, setNotes] = useState<LoveNote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bgSize, setBgSize] = useState({ width: 0, height: 0 });
 
   const goWrite = () => router.push('/note/create');
-  const bgHeight = height - insets.bottom;
+  const goEdit = (note: LoveNote) => {
+    if (note.fromUid !== profile?.uid) return;
+    router.push({
+      pathname: '/note/create',
+      params: { noteId: note.id, text: note.text },
+    });
+  };
+  const hasNotes = notes.length > 0;
+
+  const onBgLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    if (width !== bgSize.width || height !== bgSize.height) {
+      setBgSize({ width, height });
+    }
+  };
 
   useEffect(() => {
     if (!couple?.id) {
@@ -58,10 +69,7 @@ export default function NotesScreen() {
   }, [couple?.id]);
 
   const onDelete = (note: LoveNote) => {
-    if (note.fromUid !== profile?.uid) {
-      Alert.alert('Only the sender can delete this note.');
-      return;
-    }
+    if (note.fromUid !== profile?.uid) return;
 
     Alert.alert('Delete note?', 'This removes it for both of you.', [
       { text: 'Cancel', style: 'cancel' },
@@ -80,9 +88,20 @@ export default function NotesScreen() {
     ]);
   };
 
+  // Dim translucent gradient — screen bg design shows through
+  const panelGradient = isDark
+    ? (['rgba(74, 36, 56, 0.64)', 'rgba(53, 32, 48, 0.44)', 'rgba(42, 26, 38, 0.26)'] as const)
+    : (['rgba(247, 196, 214, 0.6)', 'rgba(252, 224, 234, 0.4)', 'rgba(255, 245, 248, 0.24)'] as const);
+  const fadeColors = isDark
+    ? (['rgba(42, 26, 38, 0)', 'rgba(42, 26, 38, 0.28)', 'rgba(42, 26, 38, 0.55)'] as const)
+    : (['rgba(255, 245, 248, 0)', 'rgba(252, 224, 234, 0.22)', 'rgba(247, 196, 214, 0.4)'] as const);
+
   return (
     <Screen padded={false} edges={['top', 'left', 'right']}>
-      <View style={[styles.fill, { backgroundColor: isDark ? colors.background : '#FFF1F5' }]}>
+      <View
+        style={[styles.fill, { backgroundColor: isDark ? colors.background : '#FFF1F5' }]}
+        onLayout={onBgLayout}
+      >
         <View pointerEvents="none" style={styles.bg}>
           {isDark ? (
             <LinearGradient
@@ -91,68 +110,85 @@ export default function NotesScreen() {
               end={{ x: 0.85, y: 1 }}
               style={StyleSheet.absoluteFill}
             />
-          ) : (
-            <LoveNotesBg width={width} height={bgHeight} />
-          )}
+          ) : bgSize.width > 0 && bgSize.height > 0 ? (
+            <LoveNotesBg width={bgSize.width} height={bgSize.height} />
+          ) : null}
         </View>
 
-        <NotesHeader />
+        <NotesHeader showWrite={hasNotes} onWrite={goWrite} />
 
         {loading ? (
-          <View style={styles.listPad}>
-            <Skeleton height={280} radius={32} />
+          <View style={styles.outerPad}>
+            <LinearGradient
+              colors={panelGradient}
+              locations={[0, 0.4, 1]}
+              style={[styles.panel, styles.panelFill]}
+            >
+              <Skeleton height={72} radius={40} />
+              <Skeleton height={96} radius={22} style={{ marginTop: 16 }} />
+            </LinearGradient>
+          </View>
+        ) : !hasNotes ? (
+          <View style={[styles.outerPad, styles.emptyList]}>
+            <NotesEmptyCard onWrite={goWrite} />
           </View>
         ) : (
-          <FlatList
-            data={notes}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={[
-              styles.listPad,
-              notes.length === 0 && styles.emptyList,
-            ]}
-            ListEmptyComponent={
-              <View style={styles.emptyWrap}>
-                <NotesEmptyCard onWrite={goWrite} />
-              </View>
-            }
-            renderItem={({ item }) => {
-              const mine = item.fromUid === profile?.uid;
-              return (
-                <Pressable
-                  onLongPress={() => onDelete(item)}
-                  style={[
-                    styles.note,
-                    theme.shadows.card,
-                    {
-                      backgroundColor: mine
-                        ? isDark
-                          ? colors.surfaceMuted
-                          : '#FFF0F4'
-                        : isDark
-                          ? colors.surface
-                          : '#FFF8FA',
-                      alignSelf: mine ? 'flex-end' : 'flex-start',
-                      borderColor: colors.border,
-                    },
-                  ]}
-                >
-                  <Text
-                    color={colors.primary}
-                    style={styles.noteMeta}
-                    numberOfLines={1}
-                  >
-                    {mine ? 'You' : partner?.displayName || 'Partner'}
-                  </Text>
-                  <Text color={colors.textHeading} style={styles.body}>
-                    {item.text}
-                  </Text>
-                  <Text color={colors.textMuted} style={styles.noteMeta}>
-                    {formatNoteTime(item.createdAt)} · hold to delete
-                  </Text>
-                </Pressable>
-              );
-            }}
-          />
+          <View style={styles.outerPad}>
+            <LinearGradient
+              colors={panelGradient}
+              locations={[0, 0.4, 1]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={[styles.panel, styles.panelFill]}
+            >
+              <FlatList
+                data={notes}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                removeClippedSubviews={false}
+                style={styles.list}
+                contentContainerStyle={styles.listContent}
+                ListHeaderComponentStyle={styles.clear}
+                ListHeaderComponent={
+                  <NotesCoupleBanner
+                    myAvatarId={profile?.avatarId}
+                    partnerAvatarId={partner?.avatarId}
+                  />
+                }
+                CellRendererComponent={({ children, style, ...props }) => (
+                  <View {...props} style={[style, styles.clear]}>
+                    {children}
+                  </View>
+                )}
+                renderItem={({ item }) => {
+                  const mine = item.fromUid === profile?.uid;
+                  return (
+                    <LoveNoteCard
+                      text={item.text}
+                      senderLabel={
+                        mine ? 'You' : partner?.displayName?.split(' ')[0] || 'Partner'
+                      }
+                      avatarId={mine ? profile?.avatarId : partner?.avatarId}
+                      timeLabel={formatLoveNoteTime(item.createdAt)}
+                      mine={mine}
+                      canEdit={mine}
+                      canDelete={mine}
+                      onEdit={() => goEdit(item)}
+                      onDelete={() => onDelete(item)}
+                    />
+                  );
+                }}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+              />
+
+              <LinearGradient
+                pointerEvents="none"
+                colors={fadeColors}
+                locations={[0, 0.45, 1]}
+                style={styles.bottomFade}
+              />
+            </LinearGradient>
+          </View>
         )}
       </View>
     </Screen>
@@ -167,36 +203,49 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     overflow: 'hidden',
   },
-  listPad: {
+  outerPad: {
+    flex: 1,
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxxl,
-    gap: spacing.sm,
-    flexGrow: 1,
+    paddingBottom: 0,
   },
   emptyList: {
     justifyContent: 'center',
+    paddingBottom: spacing.md,
   },
-  emptyWrap: {
+  panel: {
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderWidth: 0,
+    overflow: 'hidden',
+    paddingTop: spacing.xs,
+  },
+  panelFill: {
+    flex: 1,
+  },
+  clear: {
+    backgroundColor: 'transparent',
+  },
+  list: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  listContent: {
+    paddingHorizontal: spacing.sm,
+    paddingBottom: 88,
+    backgroundColor: 'transparent',
     flexGrow: 1,
-    justifyContent: 'center',
-    paddingVertical: spacing.xl,
   },
-  note: {
-    maxWidth: '88%',
-    borderRadius: radii.xl,
-    borderWidth: 1,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    gap: 6,
+  separator: {
+    height: spacing.sm,
+    backgroundColor: 'transparent',
   },
-  noteMeta: {
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  body: {
-    fontFamily: fonts.body,
-    fontSize: 16,
-    lineHeight: 24,
+  bottomFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 100,
   },
 });

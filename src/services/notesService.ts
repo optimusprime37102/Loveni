@@ -73,6 +73,17 @@ export async function sendLoveNote(input: {
   return ref.id;
 }
 
+export async function updateLoveNote(noteId: string, text: string): Promise<void> {
+  const trimmed = text.trim();
+  if (!trimmed) throw new Error('Write a little something first');
+  if (trimmed.length > 500) throw new Error('Notes can be up to 500 characters');
+
+  await updateDoc(doc(getDb(), 'notes', noteId), {
+    text: trimmed,
+    updatedAt: Date.now(),
+  });
+}
+
 export async function deleteLoveNote(noteId: string): Promise<void> {
   await updateDoc(doc(getDb(), 'notes', noteId), {
     deleted: true,

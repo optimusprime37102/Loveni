@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { ConnectedActionsRow } from '@/src/components/home/ConnectedActionsRow';
 import { DaysTogetherHero } from '@/src/components/home/DaysTogetherHero';
 import { HomeHeader } from '@/src/components/home/HomeHeader';
+import { HomeWidgetsRow } from '@/src/components/home/HomeWidgetsRow';
 import { LatestNoteCard } from '@/src/components/home/LatestNoteCard';
 import { MoodPreviewCard } from '@/src/components/home/MoodPreviewCard';
 import { UnlockFeaturesRow } from '@/src/components/home/UnlockFeaturesRow';
@@ -17,6 +18,7 @@ import { Text } from '@/src/components/ui/Text';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useCouple } from '@/src/contexts/CoupleContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
+import { useSyncHomeWidgets } from '@/src/hooks/useSyncHomeWidgets';
 import { subscribeLoveNotes } from '@/src/services/notesService';
 import { LoveNote } from '@/src/types/models';
 import { fonts } from '@/src/theme/typography';
@@ -49,6 +51,15 @@ export default function HomeScreen() {
     return unsub;
   }, [couple?.id]);
 
+  useSyncHomeWidgets({
+    me: profile,
+    partner,
+    startDate: couple?.startDate ?? null,
+    note: latestNote,
+    connected: isConnected,
+    enabled: Boolean(profile) && !(profile?.coupleId && (coupleLoading || notesLoading)),
+  });
+
   if (!profile || (profile.coupleId && (coupleLoading || notesLoading))) {
     return (
       <Screen padded={false}>
@@ -63,8 +74,13 @@ export default function HomeScreen() {
   const goEnterCode = () => router.push('/(onboarding)/connect-partner?mode=join');
   const goMood = () =>
     isConnected ? router.push('/(tabs)/mood') : router.push('/(onboarding)/connect-partner');
+  const goMoodHistory = () =>
+    isConnected ? router.push('/mood/history') : router.push('/(onboarding)/connect-partner');
   const goNotes = () =>
     isConnected ? router.push('/(tabs)/notes') : router.push('/(onboarding)/connect-partner');
+  const goDays = () =>
+    isConnected ? router.push('/relationship/edit') : router.push('/(onboarding)/connect-partner');
+  const goAddWidgets = () => router.push('/widgets/add');
 
   return (
     <Screen scroll padded={false} style={styles.screen}>
@@ -136,11 +152,24 @@ export default function HomeScreen() {
                 <UnlockFeaturesRow />
               )}
 
+              <HomeWidgetsRow
+                me={profile}
+                partner={partner}
+                startDate={couple?.startDate ?? null}
+                note={latestNote}
+                locked={!isConnected}
+                onPressDays={goDays}
+                onPressMood={goMood}
+                onPressNotes={goNotes}
+                onPressAll={goAddWidgets}
+              />
+
               <MoodPreviewCard
                 me={profile}
                 partner={partner}
                 locked={!isConnected}
                 onPress={goMood}
+                onViewHistory={goMoodHistory}
               />
               <LatestNoteCard
                 note={latestNote}

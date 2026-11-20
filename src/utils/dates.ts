@@ -60,6 +60,16 @@ export function formatNoteTime(timestamp: number): string {
   return format(date, 'MMM d · h:mm a');
 }
 
+export function formatLoveNoteTime(timestamp: number): string {
+  const date = new Date(timestamp);
+  if (!isValid(date)) return '';
+  const days = differenceInCalendarDays(startOfDay(new Date()), startOfDay(date));
+  const clock = format(date, 'h:mm a');
+  if (days === 0) return `Today, ${clock}`;
+  if (days === 1) return `Yesterday, ${clock}`;
+  return format(date, 'MMM d, h:mm a');
+}
+
 export function formatRelativeShort(timestamp: number): string {
   const date = new Date(timestamp);
   if (!isValid(date)) return '';
@@ -68,4 +78,25 @@ export function formatRelativeShort(timestamp: number): string {
   if (days === 1) return 'Yesterday';
   if (days < 7) return format(date, 'EEEE');
   return format(date, 'MMM d');
+}
+
+export function formatMoodClock(timestamp: number): string {
+  const date = new Date(timestamp);
+  if (!isValid(date)) return '';
+  return format(date, 'h:mm a');
+}
+
+export function formatMoodDayHeading(timestamp: number): string {
+  const date = new Date(timestamp);
+  if (!isValid(date)) return '';
+  const days = differenceInCalendarDays(startOfDay(new Date()), startOfDay(date));
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  return format(date, 'MMM d, yyyy');
+}
+
+export function moodDayKey(timestamp: number): string {
+  const date = new Date(timestamp);
+  if (!isValid(date)) return '';
+  return format(startOfDay(date), 'yyyy-MM-dd');
 }
